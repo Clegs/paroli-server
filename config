@@ -2,6 +2,7 @@
 
 # The name that the server identifies itself as.
 name Test Server
+# The port that the server listens on.
 port 6743
 
 
