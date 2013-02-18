@@ -1,0 +1,7 @@
+# Configuration file for the Paroli Serer
+
+# The name that the server identifies itself as.
+name Test Server
+port 6743
+
+
