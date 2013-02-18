@@ -3,6 +3,10 @@
 
 module.exports = {};
 
+// Default values. Don't edit thiese, instead configure the 'config' file.
+module.exports.name = "Paroli Server";
+module.exports.port = 6743;
+
 var fs = require('fs');
 
 var data = fs.readFileSync('config', 'utf8');
