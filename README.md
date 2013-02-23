@@ -16,7 +16,7 @@ Instalation
 
 To install simply run:
 
-git clone https://github.com/Clegs/paroli-server
+git clone git://github.com/Clegs/paroli-server.git
 
 cd paroli-server
 
