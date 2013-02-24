@@ -1,5 +1,7 @@
 # Files to ignore
 node_modules
+*.swp
+.*.swp
 
 # Compiled CoffeeScript Files
 *.js
