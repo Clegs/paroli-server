@@ -1,9 +1,12 @@
-# start2.coffee - Main program for running the Paroli Server
+###
+# start.coffee - Main program for running the Paroli Server
+###
 
 fs = require 'fs'
 
 config = require './configloader'
-server = require './server'
+Server = require './server'
+server = new Server()
 
 # Do some error checking.
 if not config

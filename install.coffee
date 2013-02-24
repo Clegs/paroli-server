@@ -10,9 +10,11 @@ if fs.existsSync 'data'
 	process.exit 1
 
 # Create the following directories in the order listed.
-directories = ['data',
-               'data/users',
-			   'data/groups']
+directories = [
+               'data'
+               'data/users'
+			   'data/groups'
+			  ]
 
 directories.forEach (dir) ->
 	console.log "Creating: #{dir}"

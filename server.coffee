@@ -22,6 +22,6 @@ class Server
 			console.log "Listening on port #{ config.port }"
 
 
-module.exports = new Server
+module.exports = Server
 
 
