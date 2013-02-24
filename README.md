@@ -9,7 +9,7 @@ there does not currently exist any workable release version.
 Requirements
 ------------
 
-Requires Node.js v0.8.20 and sqlite3i
+Requires Node.js v0.8.20, sqlite3, and coffee-script.
 
 Instalation
 -----------
@@ -17,10 +17,10 @@ Instalation
 To install simply run:
 
 ```bash
-git clone git://github.com/Clegs/paroli-server.git  
-cd paroli-server  
-npm install sqlite3  
-make  
-make install  
+git clone git://github.com/Clegs/paroli-server.git
+cd paroli-server
+npm install sqlite3
+make
+make install 
 ```
 
