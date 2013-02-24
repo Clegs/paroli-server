@@ -6,7 +6,9 @@ class Server
 		
 	# Starts a new server from the given config file.
 	start: (config) ->
-		@server = @net.createServer (c) ->
+		@config = config
+
+		@server = @net.createServer (c) =>
 			console.log 'Server Started'
 			c.write 'User Connected\r\n'
 
@@ -18,8 +20,8 @@ class Server
 			c.on 'data', (data) ->
 				console.log "Received: #{ data }"
 
-		@server.listen config.port, ->
-			console.log "Listening on port #{ config.port }"
+		@server.listen config.port, =>
+			console.log "Listening on port #{ @config.port }"
 
 
 module.exports = Server

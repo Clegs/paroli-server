@@ -16,9 +16,11 @@ Instalation
 
 To install simply run:
 
-git clone git://github.com/Clegs/paroli-server.git
-
-cd paroli-server
-
-npm install sqlite3
+`
+	git clone git://github.com/Clegs/paroli-server.git
+	cd paroli-server
+	npm install sqlite3
+	make
+	make install
+`
 
