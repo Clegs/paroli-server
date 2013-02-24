@@ -2,8 +2,8 @@
 
 fs = require 'fs'
 
-config = require './configloader2'
-server = require './server2'
+config = require './configloader'
+server = require './server'
 
 # Do some error checking.
 if not config

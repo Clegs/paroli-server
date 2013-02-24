@@ -1,3 +1,6 @@
 # Files to ignore
 node_modules
 
+# Compiled CoffeeScript Files
+*.js
+
