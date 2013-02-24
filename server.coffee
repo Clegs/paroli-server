@@ -10,7 +10,7 @@ class Server
 			console.log 'Server Started'
 			c.write 'User Connected\r\n'
 
-			# Create an empy user object ot keep track of the user's session.
+			# Create an empy user object to keep track of the user's session.
 			user = {}
 
 			c.on 'end', ->
@@ -20,6 +20,7 @@ class Server
 
 		@server.listen config.port, ->
 			console.log "Listening on port #{ config.port }"
+
 
 module.exports = new Server
 
