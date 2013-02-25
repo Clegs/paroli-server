@@ -1,27 +1,34 @@
-# server2.coffee - Runs the server
+# server.coffee - Runs the server
+
+net = require 'net'
+Connection = require './connection'
 
 class Server
 	constructor: ->
-		@net = require 'net'
+		@connections = []
 		
 	# Starts a new server from the given config file.
-	start: (config) ->
+	start: (config, debug = false) =>
 		@config = config
 
-		@server = @net.createServer (c) =>
-			console.log 'Server Started'
-			c.write 'User Connected\r\n'
+		@server = net.createServer (c) =>
+			conn = new Connection(c)
+			
+			@connections.push conn
+			
+			conn.onData (data) =>
+				console.log "#{@connections.length} connections"
 
-			# Create an empy user object to keep track of the user's session.
-			user = {}
-
-			c.on 'end', ->
-				console.log 'Server Disconnected'
-			c.on 'data', (data) ->
-				console.log "Received: #{ data }"
+			conn.onEnd =>
+				@connections.splice index, 1 for index, value of @connections when value is conn
 
 		@server.listen config.port, =>
 			console.log "Listening on port #{ @config.port }"
+
+		if debug
+			setInterval =>
+				console.log "#{@connections.length} connections"
+			, 3000
 
 
 module.exports = Server
