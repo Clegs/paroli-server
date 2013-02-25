@@ -3,16 +3,14 @@
 ###
 
 class Connection
-	constructor: (c) ->
+	constructor: (@c) ->
 		# Setup a new connection
-		@c = c
 		console.log "Server Started"
-		c.write "User Connected\r\n"
+		@c.write "User Connected\r\n"
 
-		# Run end when the server is done.
-		c.on 'end', @end
-
-		c.on 'data', @data
+		# Listen to events
+		@c.on 'end', @end
+		@c.on 'data', @data
 	
 	# Called when the client disconnects from the server.
 	# Optional: Pass terminate = true for the server to disconnect on the client.
