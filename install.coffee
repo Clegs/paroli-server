@@ -16,7 +16,7 @@ directories = [
 			   'data/groups'
 			  ]
 
-directories.forEach (dir) ->
+for dir in directories
 	console.log "Creating: #{dir}"
 	fs.mkdirSync dir
 
