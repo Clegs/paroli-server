@@ -1,18 +1,23 @@
 # server.coffee - Runs the server
 
 net = require 'net'
+ursa = require 'ursa'
+fs = require 'fs'
 Connection = require './connection'
 
 class Server
 	constructor: ->
 		@connections = []
+		privateKeyPem = fs.readFileSync 'data/key', 'utf8'
+		@privateKey = ursa.createPrivateKey privateKeyPem, '', 'utf8'
+		console.log @privateKey
 		
 	# Starts a new server from the given config file.
 	start: (config, debug = false) =>
 		@config = config
 
 		@server = net.createServer (c) =>
-			conn = new Connection(c)
+			conn = new Connection c, @privateKey
 			
 			@connections.push conn
 			

@@ -5,7 +5,7 @@
 fs = require 'fs'
 
 class Connection
-	constructor: (@c) ->
+	constructor: (@c, @privateKey) ->
 		# Setup a new connection
 		console.log "Server Started"
 
@@ -30,7 +30,8 @@ class Connection
 		@endFunc?(@c)
 
 	data: (data) =>
-		console.log "Received: #{data.toString().trim()}"
+		console.log data.toString()
+		console.log "Received: #{@privateKey.decrypt data}"
 		@dataFunc?(data)
 
 	
