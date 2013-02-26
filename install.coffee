@@ -3,6 +3,7 @@
 
 fs = require 'fs'
 crypto = require 'crypto'
+ursa = require 'ursa'
 
 # Check to make sure there is no data directory.
 # If it exists than exit immediatly.
@@ -22,10 +23,9 @@ for dir in directories
 	fs.mkdirSync dir
 
 console.log "Generating Keys"
-dh = crypto.createDiffieHellman 1024
-dh.generateKeys()
-publicKey = dh.getPublicKey 'base64'
-privateKey = dh.getPrivateKey 'base64'
+key = ursa.generatePrivateKey 2048, 65537
+privateKey = key.toPrivatePem()
+publicKey = key.toPublicPem()
 console.log "Keys generated"
 
 # Write the keys to files
