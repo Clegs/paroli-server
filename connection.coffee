@@ -30,8 +30,8 @@ class Connection
 		@endFunc?(@c)
 
 	data: (data) =>
-		console.log data.toString()
-		console.log "Received: #{@privateKey.decrypt data}"
+		clearData = @privateKey.decrypt data
+		console.log "Received: #{clearData}"
 		@dataFunc?(data)
 
 	
