@@ -1,4 +1,5 @@
 # Files to ignore
+data
 node_modules
 *.swp
 .*.swp

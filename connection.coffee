@@ -2,15 +2,24 @@
 # connection.coffee - Manages the communication between the client and server.
 ###
 
+fs = require 'fs'
+
 class Connection
 	constructor: (@c) ->
 		# Setup a new connection
 		console.log "Server Started"
-		@c.write "User Connected\r\n"
 
-		# Listen to events
-		@c.on 'end', @end
-		@c.on 'data', @data
+		fs.readFile 'data/key.pub', 'utf8', (err, data) =>
+			if err
+				@c.write 'Could not load public key\r\n'
+				@c.end()
+				return
+
+			@c.write data
+			
+			# Listen to events
+			@c.on 'end', @end
+			@c.on 'data', @data
 	
 	# Called when the client disconnects from the server.
 	# Optional: Pass terminate = true for the server to disconnect on the client.
