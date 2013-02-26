@@ -22,7 +22,7 @@ for dir in directories
 	fs.mkdirSync dir
 
 console.log "Generating Keys"
-dh = crypto.createDiffieHellman 2048
+dh = crypto.createDiffieHellman 1024
 dh.generateKeys()
 publicKey = dh.getPublicKey 'base64'
 privateKey = dh.getPrivateKey 'base64'
