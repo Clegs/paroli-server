@@ -23,7 +23,7 @@ for dir in directories
 	fs.mkdirSync dir
 
 console.log "Generating Keys"
-key = ursa.generatePrivateKey 2048, 65537
+key = ursa.generatePrivateKey 4096, 65537
 privateKey = key.toPrivatePem()
 publicKey = key.toPublicPem()
 console.log "Keys generated"
