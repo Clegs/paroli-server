@@ -20,7 +20,7 @@ if not server
 # Make sure there is a data directory.
 # If not, th eprogram hasn't been installed
 if not fs.existsSync 'data'
-	console.error 'Program not installed. Plese run ./install.js'
+	console.error 'Program not installed. Please run ./install.js'
 	process.exit 3
 
 console.log "Starting: #{ config.name }"
