@@ -25,4 +25,8 @@ uninstall:
 start: all
 	./start.js
 
+testjohn:
+	./admin.js removeuser john
+	./admin.js adduser john
+
 

@@ -5,6 +5,9 @@
 fs = require 'fs'
 async = require 'async'
 crypto = require 'crypto'
+ursa = require 'ursa'
+sqlite3 = require 'sqlite3'
+ursa = require 'ursa'
 
 # Get the next line from the console and call 'callback' with the line
 # as the argument.
@@ -59,10 +62,48 @@ addUser = ->
 			
 			# Create files
 			fs.mkdirSync userPath
-			fs.mkdirSync "#{userPath}/messages"
 			fs.mkdirSync "#{userPath}/files"
 			fs.writeFileSync "#{userPath}/password", passwordHash, 'utf8'
 
+			# Create messages database
+			###
+				Table: messages
+				id - The identification of the message
+				from - The user who sent the message
+				sent - The time that the message was sent
+				read - 1 if message is read, 0 otherwise
+				message - The encrypted message
+			###
+			messageDB = new sqlite3.Database "#{userPath}/messages.db"
+			messageDB.serialize ->
+				messageDB.run """
+					CREATE TABLE messages (
+							id INTEGER PRIMARY KEY,
+							`from` TEXT,
+							`to` TEXT,
+							sent REAL,
+							received REAL,
+							read INTEGER,
+							message BLOB);
+					"""
+			messageDB.close()
+			
+			# Create the password
+			key = crypto.randomBytes 32
+			keyCipher = crypto.createCipher "aes256", password
+			keyEnc = keyCipher.update key, 'binary', 'base64'
+			keyEnc += keyCipher.final 'base64'
+			fs.writeFileSync "#{userPath}/key", keyEnc, 'utf8'
+
+			# Create Pub / Private Keys
+			pubpriv = ursa.generatePrivateKey 4096, 65537
+			privateKey = pubpriv.toPrivatePem()
+			publicKey = pubpriv.toPublicPem()
+			console.log key
+			keyCipher = crypto.createCipher 'aes256', key
+			privateKeyEnc = "#{keyCipher.update privateKey, 'utf8', 'base64'}#{keyCipher.final 'base64'}"
+			fs.writeFileSync "#{userPath}/privateKey.pem", privateKeyEnc, 'utf8'
+			fs.writeFileSync "#{userPath}/publicKey.pem", publicKey, 'utf8'
 
 			callback null
 	]
