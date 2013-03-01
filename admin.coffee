@@ -77,14 +77,25 @@ addUser = ->
 			messageDB = new sqlite3.Database "#{userPath}/messages.db"
 			messageDB.serialize ->
 				messageDB.run """
-					CREATE TABLE messages (
+					CREATE TABLE received (
 							id INTEGER PRIMARY KEY,
-							`from` TEXT,
+							`from` TEXT
+							sent REAL,
+							received REAL,
+							read INTEGER,
+							message BLOB,
+							attachments BLOB);
+					"""
+				messageDB.run """
+					CREATE TABLE sent (
+							id INTEGER PRIMARY KEY,
 							`to` TEXT,
 							sent REAL,
 							received REAL,
 							read INTEGER,
-							message BLOB);
+							message BLOB,
+							attachments BLOB);
+
 					"""
 			messageDB.close()
 			
