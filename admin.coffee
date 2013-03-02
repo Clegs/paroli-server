@@ -14,8 +14,7 @@ ursa = require 'ursa'
 getLine = (callback) ->
 	process.stdin.resume()
 	process.stdin.setEncoding 'utf8'
-	process.stdin.on 'data', (line) ->
-		process.stdin.on 'data', ->
+	process.stdin.once 'data', (line) ->
 		process.stdin.pause()
 		line = line.trim()
 		callback(line)
