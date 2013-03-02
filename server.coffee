@@ -10,7 +10,6 @@ class Server
 		@connections = []
 		privateKeyPem = fs.readFileSync 'data/key', 'utf8'
 		@privateKey = ursa.createPrivateKey privateKeyPem, '', 'utf8'
-		console.log @privateKey
 		
 	# Starts a new server from the given config file.
 	start: (config, debug = false) =>
