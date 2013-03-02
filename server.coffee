@@ -12,9 +12,7 @@ class Server
 		@privateKey = ursa.createPrivateKey privateKeyPem, '', 'utf8'
 		
 	# Starts a new server from the given config file.
-	start: (config, debug = false) =>
-		@config = config
-
+	start: (@config, debug = false) =>
 		@server = net.createServer (c) =>
 			conn = new Connection c, @privateKey
 			
