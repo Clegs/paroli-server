@@ -3,34 +3,53 @@
 ###
 
 fs = require 'fs'
+async = require 'async'
+crypto = require 'crypto'
 
 class Connection
 	constructor: (@c, @privateKey) ->
 		# Setup a new connection
-		console.log "Server Started"
+		console.log "Connection Started"
 
-		fs.readFile 'data/key.pub', 'utf8', (err, data) =>
-			if err
-				@c.write 'Could not load public key\r\n'
-				@c.end()
-				return
+		# Perform handshake
+		async.waterfall [
+			(callback) =>
+				fs.readFile 'data/key.pub', 'utf8', (err, data) =>
+					if err
+						@c.write "Could not load pulbic key\r\n"
+						@c.end()
+						callback err
+						return
 
-			@c.write data
-			
-			# Listen to events
-			@c.on 'end', @end
-			@c.on 'data', @data
+					# Listen for the connection ending
+					@c.on 'end', @end
+					callback null, data
+			(publicKey, callback) =>
+				@c.once 'data', (data) =>
+					# They have now sent the key
+					@c.on 'data', @data
+					@key = privateKey.decrypt data
+					console.log "Key: #{@key}"
+					callback null
+
+				@c.write publicKey
+			(callback) =>
+				# Listen for data
+				#@c.on 'data', @data
+				callback null
+		]
 	
 	# Called when the client disconnects from the server.
 	# Optional: Pass terminate = true for the server to disconnect on the client.
 	end: (terminate = false) =>
 		# End the connection
 		@c.end()
-		console.log "Server Disconnected"
+		console.log "Connection Disconnected"
 		@endFunc?(@c)
 
 	data: (data) =>
-		clearData = @privateKey.decrypt data
+		decipher = crypto.createDecipher 'aes256', @key
+		clearData = "#{decipher.update data}#{decipher.final()}"
 		console.log "Received: #{clearData}"
 		@dataFunc?(data)
 

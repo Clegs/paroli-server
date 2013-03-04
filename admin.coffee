@@ -34,7 +34,7 @@ printUsage = ->
 addUser = ->
 	passwordHash = null
 
-	if proce¬,ss.argv.length < 4
+	if process.argv.length < 4
 		console.error "Need to specify a username."
 		printUsage()
 		process.exit 1
