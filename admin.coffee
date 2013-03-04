@@ -34,7 +34,7 @@ printUsage = ->
 addUser = ->
 	passwordHash = null
 
-	if process.argv.length < 4
+	if proce¬,ss.argv.length < 4
 		console.error "Need to specify a username."
 		printUsage()
 		process.exit 1
@@ -70,8 +70,10 @@ addUser = ->
 				id - The identification of the message
 				from - The user who sent the message
 				sent - The time that the message was sent
+				received - The time the message was received
 				read - 1 if message is read, 0 otherwise
 				message - The encrypted message
+				attachments - Files attached to the message
 			###
 			messageDB = new sqlite3.Database "#{userPath}/messages.db"
 			messageDB.serialize ->
@@ -109,7 +111,6 @@ addUser = ->
 			pubpriv = ursa.generatePrivateKey 4096, 65537
 			privateKey = pubpriv.toPrivatePem()
 			publicKey = pubpriv.toPublicPem()
-			console.log key
 			keyCipher = crypto.createCipher 'aes256', key
 			privateKeyEnc = "#{keyCipher.update privateKey, 'utf8', 'base64'}#{keyCipher.final 'base64'}"
 			fs.writeFileSync "#{userPath}/privateKey.pem", privateKeyEnc, 'utf8'
