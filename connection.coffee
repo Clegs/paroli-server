@@ -51,6 +51,7 @@ class Connection
 		decipher = crypto.createDecipher 'aes256', @key
 		clearData = "#{decipher.update data}#{decipher.final()}"
 		console.log "Received: #{clearData}"
+
 		@dataFunc?(data)
 
 	
