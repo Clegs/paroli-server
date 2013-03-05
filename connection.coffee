@@ -39,6 +39,13 @@ class Connection
 				callback null
 		]
 	
+	send: (data) =>
+		cipher = crypto.createCipher 'aes256', @key
+		buf1 = new Buffer cipher.update(data), 'binary'
+		buf2 = new Buffer cipher.final(), 'binary'
+		out = Buffer.concat [buf1, buf2]
+		@c.write out
+	
 	# Called when the client disconnects from the server.
 	# Optional: Pass terminate = true for the server to disconnect on the client.
 	end: (terminate = false) =>
@@ -51,6 +58,17 @@ class Connection
 		decipher = crypto.createDecipher 'aes256', @key
 		clearData = "#{decipher.update data}#{decipher.final()}"
 		console.log "Received: #{clearData}"
+		
+		d = JSON.parse clearData
+		response = {}
+		switch d.command?
+			when "login"
+				response.success = true
+			else
+				response.message = "Unknown command"
+
+		@send JSON.stringify(data)
+
 
 		@dataFunc?(data)
 
