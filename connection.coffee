@@ -67,7 +67,7 @@ class Connection
 			else
 				response.message = "Unknown command"
 
-		@send JSON.stringify(data)
+		@send JSON.stringify(response)
 
 
 		@dataFunc?(data)
