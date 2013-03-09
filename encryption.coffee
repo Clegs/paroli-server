@@ -10,13 +10,11 @@ class Encryption
 		
 	encode: (data) =>
 		cipher = crypto.createCipher 'aes256', @key
-		buf1 = new Buffer cipher.update(data), 'binary'
-		buf2 = new Buffer cipher.final(), 'binary'
-		Buffer.concat [buf1, buf2]
+		cipher.update(data, 'utf8', 'base64') + cipher.final('base64')
 	
 	decode: (data) =>
 		decipher = crypto.createDecipher 'aes256', @key
-		"#{decipher.update data}#{decipher.final()}"
+		"#{decipher.update data, 'base64'}#{decipher.final()}"
 	
 	encObj: (obj) =>
 		@encode JSON.stringify obj

@@ -62,7 +62,9 @@ class Connection
 				else
 					response.message = "Unknown command"
 		
-		@c.write @enc.encObj response
+		res = @enc.encObj response
+		console.log "Sending: #{res}"
+		@c.write res
 
 
 		@dataFunc?(data)
