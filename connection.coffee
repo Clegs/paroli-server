@@ -30,7 +30,6 @@ class Connection
 					# They have now sent the key
 					@c.on 'data', @data
 					@key = privateKey.decrypt data
-					console.log "Key: #{@key}"
 					@enc = new Encryption @key, @privateKey
 					callback null
 
@@ -50,12 +49,7 @@ class Connection
 		@endFunc?(@c)
 
 	data: (data) =>
-		d = @enc.decObj data
-		console.log "Received: #{JSON.stringify d}"
-
-		response = @processCommand d
-
-		#@c.write @enc.encObj response
+		@processCommand @enc.decObj data
 
 		@dataFunc?(data)
 	
@@ -71,11 +65,11 @@ class Connection
 			if cmd.user? and cmd.password?
 				fs.readFile "data/users/#{cmd.user}/password", (err, data) =>
 					if err or "#{cmd.password}" isnt "#{data}"
-						if err
-							console.log err
 						response.success = false
+						console.log "User '#{cmd.user}' tried to log in but failed."
 					else
 						response.success = true
+						console.log "User '#{cmd.user}' has successfully logged in."
 					callback()
 		
 		async.waterfall [
@@ -87,7 +81,6 @@ class Connection
 						callback null
 			(callback) =>
 				@c.write @enc.encObj response
-				console.log "Sent: #{JSON.stringify response}"
 				callback null
 		]
 	
