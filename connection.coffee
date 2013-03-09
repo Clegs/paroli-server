@@ -53,22 +53,43 @@ class Connection
 		d = @enc.decObj data
 		console.log "Received: #{JSON.stringify d}"
 
-		response = {}
+		response = @processCommand d
 
-		if d.command?
-			switch d.command
-				when "login"
-					response.success = true
-				else
-					response.message = "Unknown command"
-		
-		res = @enc.encObj response
-		console.log "Sending: #{res}"
-		@c.write res
-
+		#@c.write @enc.encObj response
 
 		@dataFunc?(data)
+	
+	processCommand: (cmd, callback) =>
+		unless cmd.command?
+			callback {message: "No command given."}
+			return
 
+		response = {}
+
+		cmdLogin = (callback) =>
+			# Check to make sure the right parameters are there.
+			if cmd.user? and cmd.password?
+				fs.readFile "data/users/#{cmd.user}/password", (err, data) =>
+					if err or "#{cmd.password}" isnt "#{data}"
+						if err
+							console.log err
+						response.success = false
+					else
+						response.success = true
+					callback()
+		
+		async.waterfall [
+			(callback) =>
+				switch cmd.command
+					when "login" then cmdLogin => callback null
+					else
+						response.message = "No command given."
+						callback null
+			(callback) =>
+				@c.write @enc.encObj response
+				console.log "Sent: #{JSON.stringify response}"
+				callback null
+		]
 	
 	###
 		Events Associated With A Connection
