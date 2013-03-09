@@ -152,6 +152,22 @@ removeUser = ->
 	
 	recursiveDelete "data/users/#{userName}"
 
+addGroup = ->
+	if process.argv.length < 6
+		console.error "Need to specify a username, group name, and role."
+		printUsage()
+		process.exit 1
+
+	userName = process.argv[3]
+	group = process.argv[4]
+	role = process.argv[5]
+
+	userPath = "data/users/#{userName}"
+
+	messageDB = new sqlite3 "#{userPath}/messages.db"
+	
+
+
 # Check for the right number of arguments
 if process.argv.length < 3
 	console.error "Not enough arguments."
