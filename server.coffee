@@ -22,8 +22,9 @@ class Server
 				console.log "#{@connections.length} connections"
 
 			conn.onEnd =>
-				@connections.splice index, 1 for index, value of @connections when value is conn
+                @connections.splice index, 1 for index, value of @connections when value is conn
 
+        console.log config.port
 		@server.listen config.port, =>
 			console.log "Listening on port #{ @config.port }"
 

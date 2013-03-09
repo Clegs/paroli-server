@@ -32,4 +32,5 @@ for line in lines
 	
 	module.exports[key] = value
 
-
+# Cloud9 Support
+module.exports.port = process.env.PORT if process.env.PORT?

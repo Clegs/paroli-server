@@ -33,4 +33,3 @@ fs.writeFile "data/key", privateKey, (err) ->
 	console.error "File could not be written. #{err}" if err
 fs.writeFile "data/key.pub", publicKey, (err) ->
 	console.error "File could not be written. #{err}" if err
-
