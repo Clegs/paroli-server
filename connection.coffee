@@ -5,6 +5,7 @@
 fs = require 'fs'
 async = require 'async'
 crypto = require 'crypto'
+Encryption = require './encryption'
 
 class Connection
 	constructor: (@c, @privateKey) ->
@@ -30,6 +31,7 @@ class Connection
 					@c.on 'data', @data
 					@key = privateKey.decrypt data
 					console.log "Key: #{@key}"
+					@enc = new Encryption @key, @privateKey
 					callback null
 
 				@c.write publicKey
@@ -38,13 +40,6 @@ class Connection
 				#@c.on 'data', @data
 				callback null
 		]
-	
-	send: (data) =>
-		cipher = crypto.createCipher 'aes256', @key
-		buf1 = new Buffer cipher.update(data), 'binary'
-		buf2 = new Buffer cipher.final(), 'binary'
-		out = Buffer.concat [buf1, buf2]
-		@c.write out
 	
 	# Called when the client disconnects from the server.
 	# Optional: Pass terminate = true for the server to disconnect on the client.
@@ -55,19 +50,19 @@ class Connection
 		@endFunc?(@c)
 
 	data: (data) =>
-		decipher = crypto.createDecipher 'aes256', @key
-		clearData = "#{decipher.update data}#{decipher.final()}"
-		console.log "Received: #{clearData}"
-		
-		d = JSON.parse clearData
-		response = {}
-		switch d.command?
-			when "login"
-				response.success = true
-			else
-				response.message = "Unknown command"
+		d = @enc.decObj data
+		console.log "Received: #{JSON.stringify d}"
 
-		@send JSON.stringify(response)
+		response = {}
+
+		if d.command?
+			switch d.command
+				when "login"
+					response.success = true
+				else
+					response.message = "Unknown command"
+		
+		@c.write @enc.encObj response
 
 
 		@dataFunc?(data)
