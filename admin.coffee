@@ -98,6 +98,15 @@ addUser = ->
 							attachments BLOB);
 
 					"""
+				###
+					name - The name of the group the user is a member of.
+					role - The users position inside the group.
+				###
+				messageDB.run """
+					CREATE TABLE groups (
+						name TEXT,
+						role TEXT);
+					"""
 			messageDB.close()
 			
 			# Create the password
