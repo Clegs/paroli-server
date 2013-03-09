@@ -35,8 +35,10 @@ class Connection
 
 				@c.write publicKey
 			(callback) =>
-				# Listen for data
-				#@c.on 'data', @data
+				# Setup variables
+				@loggedin = false
+				@user = "[anonymous]"
+
 				callback null
 		]
 	
@@ -60,22 +62,45 @@ class Connection
 
 		response = {}
 
+		# Functions called to process commands.
+		# Each function should add the output to be given to the client in the
+		# 'response' variable. When the function has completed it should call
+		# 'callback()' to send 'response' to the client.
 		cmdLogin = (callback) =>
 			# Check to make sure the right parameters are there.
 			if cmd.user? and cmd.password?
 				fs.readFile "data/users/#{cmd.user}/password", (err, data) =>
-					if err or "#{cmd.password}" isnt "#{data}"
+					if err or "#{cmd.password}" isnt "#{data}" or @loggedin
 						response.success = false
 						console.log "User '#{cmd.user}' tried to log in but failed."
 					else
 						response.success = true
 						console.log "User '#{cmd.user}' has successfully logged in."
+
+						@user = cmd.user
+						@loggedin = true
+
 					callback()
+
+		cmdLogout = (callback) =>
+			if @loggedin
+				response.success = true
+				response.message = "Successfully logged out."
+				console.log "User '#{@user}' has logged out."
+				# Clear variables
+				@user = "[anonymous]"
+				@loggedin = false
+			else
+				response.success = false
+				response.message = "You are already logged out."
+
+			callback()
 		
 		async.waterfall [
 			(callback) =>
 				switch cmd.command
 					when "login" then cmdLogin => callback null
+					when "logout" then cmdLogout => callback null
 					else
 						response.message = "No command given."
 						callback null
