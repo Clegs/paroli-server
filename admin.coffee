@@ -1,6 +1,4 @@
-###
-  admin.coffee - Admin interface for configuring the server.
-###
+# Admin interface for configuring the server.
 
 fs = require 'fs'
 async = require 'async'
