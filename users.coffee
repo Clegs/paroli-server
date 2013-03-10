@@ -1,4 +1,4 @@
-# users.coffee - Manages the users on the server
+# Manages the users on the server
 
 async = require 'async'
 sqlite3 = require 'sqlite3'
@@ -6,9 +6,19 @@ fs = require 'fs'
 
 users = {}
 
+# getUserPath
+# -----------
+# 
+# `user` - The user to get the path of.  
+# Returns the directory that the user's data is stored in.
 getUserPath = (user) ->
 	"data/users/#{user}"
 
+# recursiveDelete
+# ---------------
+# 
+# Deletes the directory `dir` and all of its subdirectories and files.  
+# `dir` - The directory to delete.
 recursiveDelete = (dir) ->
 	files = fs.readdirSync dir
 

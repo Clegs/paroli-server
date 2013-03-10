@@ -10,6 +10,7 @@ all: $(COFFEE_JS)
 
 %.js: %.coffee
 	coffee -c $<
+	@- docco $< > /dev/null
 
 clean:
 	@- rm $(COFFEE_JS)
@@ -23,7 +24,7 @@ uninstall:
 	@- rm -rf data
 
 docs:
-	docco $(COFFEE_FILES)
+	@- docco $(COFFEE_FILES)
 
 start: all
 	./start.js

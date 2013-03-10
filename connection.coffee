@@ -1,6 +1,4 @@
-###
-# connection.coffee - Manages the communication between the client and server.
-###
+# Manages the communication between the client and server.
 
 fs = require 'fs'
 async = require 'async'
@@ -63,6 +61,7 @@ class Connection
 		response = {}
 
 		# Functions called to process commands.
+		# -------------------------------------
 		# Each function should add the output to be given to the client in the
 		# 'response' variable. When the function has completed it should call
 		# 'callback()' to send 'response' to the client.
@@ -109,9 +108,7 @@ class Connection
 				callback null
 		]
 	
-	###
-		Events Associated With A Connection
-	###
+	# Events Associated With A Connection  
 	# Call this function when the connection is terminated.
 	onEnd: (@endFunc) =>
 
