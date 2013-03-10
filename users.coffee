@@ -1,20 +1,49 @@
 # users.coffee - Manages the users on the server
 
 async = require 'async'
+sqlite3 = require 'sqlite3'
 fs = require 'fs'
+
+users = {}
+
+getUserPath = (user) ->
+	"data/users/#{user}"
+
+recursiveDelete = (dir) ->
+	files = fs.readdirSync dir
+
+	for file in files
+		stat = fs.statSync "#{dir}/#{file}"
+		if stat.isFile() then fs.unlinkSync "#{dir}/#{file}"
+		else if stat.isDirectory() then recursiveDelete "#{dir}/#{file}"
+
+	fs.rmdirSync dir
+
+# Checks to see if the user already exists.
+# name - The username of the user.
+# doneCallback(exists) - Called when method is done.
+users.exists = (name, doneCallback) ->
+	userPath = getUserPath name
+
+	fs.exists userPath, (exists) ->
+		doneCallback? exists
 
 # Creates a new user on the server with the username 'name',
 # password hash 'passwordHash', and 'key'.
+# name - Username to create.
+# passwordHash - sha512 has of the password encoded in base64.
+# key - Encrypted binary key.
+# privateKey - Encrypted using origional password and encoded in base64.
+# publicKey - Plain text public key in PEM format.
 # When done calls callback(err)
-module.exports.create = (name, passwordHash, key, doneCallback) ->
-	userPath = "data/users/#{name}"
+users.create = (name, passwordHash, key, privateKey, publicKey, doneCallback) ->
+	userPath = getUserPath name
 
 	async.waterfall [
 		(callback) ->
-			fs.exists userPath, (exists) ->
+			users.exists name, (exists) ->
 				if exists
-					doneCallback "Error: User already exists."
-					callback true
+					callback "Error: User already exists."
 				else
 					callback null
 		(callback) ->
@@ -59,5 +88,32 @@ module.exports.create = (name, passwordHash, key, doneCallback) ->
 					"""
 			messageDB.close()
 
-			
-	]
+			fs.writeFile "#{userPath}/key", key, 'utf8', (err) ->
+				callback null
+		(callback) ->
+			fs.writeFile "#{userPath}/privateKey.pem", privateKey, 'utf8', (err) ->
+				callback null
+		(callback) ->
+			fs.writeFile "#{userPath}/publicKey.pem", publicKey, 'utf8', (err) ->
+				callback null
+	], (err) ->
+		doneCallback err
+
+# Removes a user if it exists.
+# user - The username to delete.
+# doneCallback(err) - Called when program is done.
+users.remove = (user, doneCallback) ->
+	async.waterfall [
+		(callback) ->
+			users.exists user, (exists) ->
+				if exists
+					callback null
+				else
+					callback "User does not exist"
+		(callback) ->
+			recursiveDelete getUserPath user
+			callback null
+	], (err) ->
+		doneCallback err
+
+module.exports = users

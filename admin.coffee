@@ -8,6 +8,7 @@ crypto = require 'crypto'
 ursa = require 'ursa'
 sqlite3 = require 'sqlite3'
 ursa = require 'ursa'
+users = require './users'
 
 # Get the next line from the console and call 'callback' with the line
 # as the argument.
@@ -59,62 +60,11 @@ addUser = ->
 			hash.update "#{userName}#{password}", 'utf8'
 			passwordHash = hash.digest 'base64'
 			
-			# Create files
-			fs.mkdirSync userPath
-			fs.mkdirSync "#{userPath}/files"
-			fs.writeFileSync "#{userPath}/password", passwordHash, 'utf8'
-
-			# Create messages database
-			###
-				Table: messages
-				id - The identification of the message
-				from - The user who sent the message
-				sent - The time that the message was sent
-				received - The time the message was received
-				read - 1 if message is read, 0 otherwise
-				message - The encrypted message
-				attachments - Files attached to the message
-			###
-			messageDB = new sqlite3.Database "#{userPath}/messages.db"
-			messageDB.serialize ->
-				messageDB.run """
-					CREATE TABLE received (
-							id INTEGER PRIMARY KEY,
-							`from` TEXT
-							sent REAL,
-							received REAL,
-							read INTEGER,
-							message BLOB,
-							attachments BLOB);
-					"""
-				messageDB.run """
-					CREATE TABLE sent (
-							id INTEGER PRIMARY KEY,
-							`to` TEXT,
-							sent REAL,
-							received REAL,
-							read INTEGER,
-							message BLOB,
-							attachments BLOB);
-
-					"""
-				###
-					name - The name of the group the user is a member of.
-					role - The users position inside the group.
-				###
-				messageDB.run """
-					CREATE TABLE groups (
-						name TEXT,
-						role TEXT);
-					"""
-			messageDB.close()
-			
 			# Create the password
 			key = crypto.randomBytes 32
 			keyCipher = crypto.createCipher "aes256", password
 			keyEnc = keyCipher.update key, 'binary', 'base64'
 			keyEnc += keyCipher.final 'base64'
-			fs.writeFileSync "#{userPath}/key", keyEnc, 'utf8'
 
 			# Create Pub / Private Keys
 			pubpriv = ursa.generatePrivateKey 4096, 65537
@@ -122,10 +72,10 @@ addUser = ->
 			publicKey = pubpriv.toPublicPem()
 			keyCipher = crypto.createCipher 'aes256', key
 			privateKeyEnc = "#{keyCipher.update privateKey, 'utf8', 'base64'}#{keyCipher.final 'base64'}"
-			fs.writeFileSync "#{userPath}/privateKey.pem", privateKeyEnc, 'utf8'
-			fs.writeFileSync "#{userPath}/publicKey.pem", publicKey, 'utf8'
 
-			callback null
+			users.create userName, passwordHash, keyEnc, privateKeyEnc, publicKey,
+				(err) ->
+					callback err
 	]
 
 removeUser = ->
@@ -136,21 +86,7 @@ removeUser = ->
 	
 	userName = process.argv[3]
 	
-	unless fs.existsSync "data/users/#{userName}"
-		console.error "#{userName} does not exist."
-		process.exit 2
-	
-	recursiveDelete = (dir) ->
-		files = fs.readdirSync dir
-		
-		for file in files
-			stat = fs.statSync "#{dir}/#{file}"
-			if stat.isFile() then fs.unlinkSync "#{dir}/#{file}"
-			else if stat.isDirectory() then recursiveDelete "#{dir}/#{file}"
-
-		fs.rmdirSync dir
-	
-	recursiveDelete "data/users/#{userName}"
+	users.remove userName, (err) ->
 
 addGroup = ->
 	if process.argv.length < 6
@@ -165,7 +101,6 @@ addGroup = ->
 	userPath = "data/users/#{userName}"
 
 	messageDB = new sqlite3 "#{userPath}/messages.db"
-	
 
 
 # Check for the right number of arguments
