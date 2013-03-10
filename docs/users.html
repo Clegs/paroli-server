@@ -17,13 +17,17 @@ Returns the directory that the user's data is stored in.</p>             </td>  
     <span class="k">if</span> <span class="nx">stat</span><span class="p">.</span><span class="nx">isFile</span><span class="p">()</span> <span class="k">then</span> <span class="nx">fs</span><span class="p">.</span><span class="nx">unlinkSync</span> <span class="s">&quot;</span><span class="si">#{</span><span class="nx">dir</span><span class="si">}</span><span class="s">/</span><span class="si">#{</span><span class="nx">file</span><span class="si">}</span><span class="s">&quot;</span>
     <span class="k">else</span> <span class="k">if</span> <span class="nx">stat</span><span class="p">.</span><span class="nx">isDirectory</span><span class="p">()</span> <span class="k">then</span> <span class="nx">recursiveDelete</span> <span class="s">&quot;</span><span class="si">#{</span><span class="nx">dir</span><span class="si">}</span><span class="s">/</span><span class="si">#{</span><span class="nx">file</span><span class="si">}</span><span class="s">&quot;</span>
 
-  <span class="nx">fs</span><span class="p">.</span><span class="nx">rmdirSync</span> <span class="nx">dir</span></pre></div>             </td>           </tr>                               <tr id="section-4">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-4">&#182;</a>               </div>               <p>Checks to see if the user already exists.
-name - The username of the user.
-doneCallback(exists) - Called when method is done.</p>             </td>             <td class="code">               <div class="highlight"><pre><span class="nv">users.exists = </span><span class="nf">(name, doneCallback) -&gt;</span>
+  <span class="nx">fs</span><span class="p">.</span><span class="nx">rmdirSync</span> <span class="nx">dir</span></pre></div>             </td>           </tr>                               <tr id="section-4">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-4">&#182;</a>               </div>               <h2>exists</h2>
+
+<p>Checks to see if the user already exists. <br />
+<code>name</code> - The username of the user. <br />
+<code>doneCallback(exists)</code> - Called when method is done.  </p>             </td>             <td class="code">               <div class="highlight"><pre><span class="nv">users.exists = </span><span class="nf">(name, doneCallback) -&gt;</span>
   <span class="nv">userPath = </span><span class="nx">getUserPath</span> <span class="nx">name</span>
 
   <span class="nx">fs</span><span class="p">.</span><span class="nx">exists</span> <span class="nx">userPath</span><span class="p">,</span> <span class="nf">(exists) -&gt;</span>
-    <span class="nx">doneCallback</span><span class="o">?</span> <span class="nx">exists</span></pre></div>             </td>           </tr>                               <tr id="section-5">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-5">&#182;</a>               </div>               <p>Creates a new user on the server with the username 'name',
+    <span class="nx">doneCallback</span><span class="o">?</span> <span class="nx">exists</span></pre></div>             </td>           </tr>                               <tr id="section-5">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-5">&#182;</a>               </div>               <h2>create</h2>
+
+<p>Creates a new user on the server with the username 'name',
 password hash 'passwordHash', and 'key'.
 name - Username to create.
 passwordHash - sha512 has of the password encoded in base64.

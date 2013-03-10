@@ -29,15 +29,21 @@ recursiveDelete = (dir) ->
 
 	fs.rmdirSync dir
 
-# Checks to see if the user already exists.
-# name - The username of the user.
-# doneCallback(exists) - Called when method is done.
+# exists
+# ------
+# 
+# Checks to see if the user already exists.  
+# `name` - The username of the user.  
+# `doneCallback(exists)` - Called when method is done.  
 users.exists = (name, doneCallback) ->
 	userPath = getUserPath name
 
 	fs.exists userPath, (exists) ->
 		doneCallback? exists
 
+# create
+# ------
+# 
 # Creates a new user on the server with the username 'name',
 # password hash 'passwordHash', and 'key'.
 # name - Username to create.
