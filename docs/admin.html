@@ -1,0 +1,98 @@
+<!DOCTYPE html>  <html> <head>   <title>admin.coffee</title>   <meta http-equiv="content-type" content="text/html; charset=UTF-8">   <link rel="stylesheet" media="all" href="docco.css" /> </head> <body>   <div id="container">     <div id="background"></div>            <div id="jump_to">         Jump To &hellip;         <div id="jump_wrapper">           <div id="jump_page">                                           <a class="source" href="admin.html">                 admin.coffee               </a>                                           <a class="source" href="configloader.html">                 configloader.coffee               </a>                                           <a class="source" href="connection.html">                 connection.coffee               </a>                                           <a class="source" href="encryption.html">                 encryption.coffee               </a>                                           <a class="source" href="install.html">                 install.coffee               </a>                                           <a class="source" href="server.html">                 server.coffee               </a>                                           <a class="source" href="start.html">                 start.coffee               </a>                                           <a class="source" href="users.html">                 users.coffee               </a>                        </div>         </div>       </div>          <table cellpadding="0" cellspacing="0">       <thead>         <tr>           <th class="docs">             <h1>               admin.coffee             </h1>           </th>           <th class="code">           </th>         </tr>       </thead>       <tbody>                               <tr id="section-1">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-1">&#182;</a>               </div>               <h1>#</h1>             </td>             <td class="code">               <div class="highlight"><pre>  <span class="nx">admin</span><span class="p">.</span><span class="nx">coffee</span> <span class="o">-</span> <span class="nx">Admin</span> <span class="nx">interface</span> <span class="k">for</span> <span class="nx">configuring</span> <span class="nx">the</span> <span class="nx">server</span><span class="p">.</span></pre></div>             </td>           </tr>                               <tr id="section-2">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-2">&#182;</a>               </div>               <h1>#</h1>             </td>             <td class="code">               <div class="highlight"><pre><span class="nv">fs = </span><span class="nx">require</span> <span class="s">&#39;fs&#39;</span>
+<span class="nv">async = </span><span class="nx">require</span> <span class="s">&#39;async&#39;</span>
+<span class="nv">crypto = </span><span class="nx">require</span> <span class="s">&#39;crypto&#39;</span>
+<span class="nv">ursa = </span><span class="nx">require</span> <span class="s">&#39;ursa&#39;</span>
+<span class="nv">sqlite3 = </span><span class="nx">require</span> <span class="s">&#39;sqlite3&#39;</span>
+<span class="nv">ursa = </span><span class="nx">require</span> <span class="s">&#39;ursa&#39;</span>
+<span class="nv">users = </span><span class="nx">require</span> <span class="s">&#39;./users&#39;</span></pre></div>             </td>           </tr>                               <tr id="section-3">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-3">&#182;</a>               </div>               <p>Get the next line from the console and call 'callback' with the line
+as the argument.</p>             </td>             <td class="code">               <div class="highlight"><pre><span class="nv">getLine = </span><span class="nf">(callback) -&gt;</span>
+  <span class="nx">process</span><span class="p">.</span><span class="nx">stdin</span><span class="p">.</span><span class="nx">resume</span><span class="p">()</span>
+  <span class="nx">process</span><span class="p">.</span><span class="nx">stdin</span><span class="p">.</span><span class="nx">setEncoding</span> <span class="s">&#39;utf8&#39;</span>
+  <span class="nx">process</span><span class="p">.</span><span class="nx">stdin</span><span class="p">.</span><span class="nx">once</span> <span class="s">&#39;data&#39;</span><span class="p">,</span> <span class="nf">(line) -&gt;</span>
+    <span class="nx">process</span><span class="p">.</span><span class="nx">stdin</span><span class="p">.</span><span class="nx">pause</span><span class="p">()</span>
+    <span class="nv">line = </span><span class="nx">line</span><span class="p">.</span><span class="nx">trim</span><span class="p">()</span>
+    <span class="nx">callback</span><span class="p">(</span><span class="nx">line</span><span class="p">)</span>
+
+<span class="nv">printUsage = </span><span class="nf">-&gt;</span>
+  <span class="nx">console</span><span class="p">.</span><span class="nx">log</span> <span class="s">&quot;&quot;&quot;</span>
+<span class="s">    Usage: admin.js command [parameters]</span>
+
+<span class="s">    Available Commands:</span>
+<span class="s">    adduser\t\tAdds a user to the server.</span>
+<span class="s">           \t\tUsage: adduser username</span>
+<span class="s">    removeuser\tRemoves a user from the server.</span>
+<span class="s">              \tUsage: removeuser username</span>
+<span class="s">    &quot;&quot;&quot;</span></pre></div>             </td>           </tr>                               <tr id="section-4">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-4">&#182;</a>               </div>               <p>Command Functions</p>             </td>             <td class="code">               <div class="highlight"><pre><span class="nv">addUser = </span><span class="nf">-&gt;</span>
+  <span class="nv">passwordHash = </span><span class="kc">null</span>
+
+  <span class="k">if</span> <span class="nx">process</span><span class="p">.</span><span class="nx">argv</span><span class="p">.</span><span class="nx">length</span> <span class="o">&lt;</span> <span class="mi">4</span>
+    <span class="nx">console</span><span class="p">.</span><span class="nx">error</span> <span class="s">&quot;Need to specify a username.&quot;</span>
+    <span class="nx">printUsage</span><span class="p">()</span>
+    <span class="nx">process</span><span class="p">.</span><span class="nx">exit</span> <span class="mi">1</span>
+  
+  <span class="nv">userName = </span><span class="nx">process</span><span class="p">.</span><span class="nx">argv</span><span class="p">[</span><span class="mi">3</span><span class="p">].</span><span class="nx">toLowerCase</span><span class="p">().</span><span class="nx">trim</span><span class="p">()</span>
+  <span class="nv">userPath = </span><span class="s">&quot;data/users/</span><span class="si">#{</span><span class="nx">userName</span><span class="si">}</span><span class="s">&quot;</span></pre></div>             </td>           </tr>                               <tr id="section-5">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-5">&#182;</a>               </div>               <p>Check if the user already exists</p>             </td>             <td class="code">               <div class="highlight"><pre>  <span class="k">if</span> <span class="nx">fs</span><span class="p">.</span><span class="nx">existsSync</span> <span class="nx">userPath</span>
+    <span class="nx">console</span><span class="p">.</span><span class="nx">error</span> <span class="s">&quot;User already exists.&quot;</span>
+    <span class="nx">process</span><span class="p">.</span><span class="nx">exit</span> <span class="mi">2</span>
+  
+  <span class="nx">async</span><span class="p">.</span><span class="nx">waterfall</span> <span class="p">[</span>
+    <span class="nf">(callback) -&gt;</span>
+      <span class="nx">process</span><span class="p">.</span><span class="nx">stdout</span><span class="p">.</span><span class="nx">write</span> <span class="s">&quot;Password: &quot;</span>
+      <span class="nx">callback</span> <span class="kc">null</span>
+    <span class="nf">(callback) -&gt;</span>
+      <span class="nx">getLine</span> <span class="nf">(password) -&gt;</span>
+        <span class="nx">callback</span> <span class="kc">null</span><span class="p">,</span> <span class="nx">password</span>
+    <span class="nf">(password, callback) -&gt;</span>
+      <span class="nv">hash = </span><span class="nx">crypto</span><span class="p">.</span><span class="nx">createHash</span> <span class="s">&quot;sha512&quot;</span>
+      <span class="nx">hash</span><span class="p">.</span><span class="nx">update</span> <span class="s">&quot;</span><span class="si">#{</span><span class="nx">userName</span><span class="si">}#{</span><span class="nx">password</span><span class="si">}</span><span class="s">&quot;</span><span class="p">,</span> <span class="s">&#39;utf8&#39;</span>
+      <span class="nv">passwordHash = </span><span class="nx">hash</span><span class="p">.</span><span class="nx">digest</span> <span class="s">&#39;base64&#39;</span>
+      </pre></div>             </td>           </tr>                               <tr id="section-6">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-6">&#182;</a>               </div>               <p>Create the password</p>             </td>             <td class="code">               <div class="highlight"><pre>      <span class="nv">key = </span><span class="nx">crypto</span><span class="p">.</span><span class="nx">randomBytes</span> <span class="mi">32</span>
+      <span class="nv">keyCipher = </span><span class="nx">crypto</span><span class="p">.</span><span class="nx">createCipher</span> <span class="s">&quot;aes256&quot;</span><span class="p">,</span> <span class="nx">password</span>
+      <span class="nv">keyEnc = </span><span class="nx">keyCipher</span><span class="p">.</span><span class="nx">update</span> <span class="nx">key</span><span class="p">,</span> <span class="s">&#39;binary&#39;</span><span class="p">,</span> <span class="s">&#39;base64&#39;</span>
+      <span class="nx">keyEnc</span> <span class="o">+=</span> <span class="nx">keyCipher</span><span class="p">.</span><span class="nx">final</span> <span class="s">&#39;base64&#39;</span></pre></div>             </td>           </tr>                               <tr id="section-7">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-7">&#182;</a>               </div>               <p>Create Pub / Private Keys</p>             </td>             <td class="code">               <div class="highlight"><pre>      <span class="nv">pubpriv = </span><span class="nx">ursa</span><span class="p">.</span><span class="nx">generatePrivateKey</span> <span class="mi">4096</span><span class="p">,</span> <span class="mi">65537</span>
+      <span class="nv">privateKey = </span><span class="nx">pubpriv</span><span class="p">.</span><span class="nx">toPrivatePem</span><span class="p">()</span>
+      <span class="nv">publicKey = </span><span class="nx">pubpriv</span><span class="p">.</span><span class="nx">toPublicPem</span><span class="p">()</span>
+      <span class="nv">keyCipher = </span><span class="nx">crypto</span><span class="p">.</span><span class="nx">createCipher</span> <span class="s">&#39;aes256&#39;</span><span class="p">,</span> <span class="nx">key</span>
+      <span class="nv">privateKeyEnc = </span><span class="s">&quot;</span><span class="si">#{</span><span class="nx">keyCipher</span><span class="p">.</span><span class="nx">update</span> <span class="nx">privateKey</span><span class="p">,</span> <span class="s">&#39;utf8&#39;</span><span class="p">,</span> <span class="s">&#39;base64&#39;</span><span class="si">}#{</span><span class="nx">keyCipher</span><span class="p">.</span><span class="nx">final</span> <span class="s">&#39;base64&#39;</span><span class="si">}</span><span class="s">&quot;</span>
+
+      <span class="nx">users</span><span class="p">.</span><span class="nx">create</span> <span class="nx">userName</span><span class="p">,</span> <span class="nx">passwordHash</span><span class="p">,</span> <span class="nx">keyEnc</span><span class="p">,</span> <span class="nx">privateKeyEnc</span><span class="p">,</span> <span class="nx">publicKey</span><span class="p">,</span>
+        <span class="nf">(err) -&gt;</span>
+          <span class="nx">callback</span> <span class="nx">err</span>
+  <span class="p">]</span>
+
+<span class="nv">removeUser = </span><span class="nf">-&gt;</span>
+  <span class="k">if</span> <span class="nx">process</span><span class="p">.</span><span class="nx">argv</span><span class="p">.</span><span class="nx">length</span> <span class="o">&lt;</span> <span class="mi">4</span>
+    <span class="nx">console</span><span class="p">.</span><span class="nx">error</span> <span class="s">&quot;Need to specify a username.&quot;</span>
+    <span class="nx">printUsage</span><span class="p">()</span>
+    <span class="nx">process</span><span class="p">.</span><span class="nx">exit</span> <span class="mi">1</span>
+  
+  <span class="nv">userName = </span><span class="nx">process</span><span class="p">.</span><span class="nx">argv</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span>
+  
+  <span class="nx">users</span><span class="p">.</span><span class="nx">remove</span> <span class="nx">userName</span><span class="p">,</span> <span class="nf">(err) -&gt;</span>
+
+<span class="nv">addGroup = </span><span class="nf">-&gt;</span>
+  <span class="k">if</span> <span class="nx">process</span><span class="p">.</span><span class="nx">argv</span><span class="p">.</span><span class="nx">length</span> <span class="o">&lt;</span> <span class="mi">6</span>
+    <span class="nx">console</span><span class="p">.</span><span class="nx">error</span> <span class="s">&quot;Need to specify a username, group name, and role.&quot;</span>
+    <span class="nx">printUsage</span><span class="p">()</span>
+    <span class="nx">process</span><span class="p">.</span><span class="nx">exit</span> <span class="mi">1</span>
+
+  <span class="nv">userName = </span><span class="nx">process</span><span class="p">.</span><span class="nx">argv</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span>
+  <span class="nv">group = </span><span class="nx">process</span><span class="p">.</span><span class="nx">argv</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span>
+  <span class="nv">role = </span><span class="nx">process</span><span class="p">.</span><span class="nx">argv</span><span class="p">[</span><span class="mi">5</span><span class="p">]</span>
+
+  <span class="nv">userPath = </span><span class="s">&quot;data/users/</span><span class="si">#{</span><span class="nx">userName</span><span class="si">}</span><span class="s">&quot;</span>
+
+  <span class="nv">messageDB = </span><span class="k">new</span> <span class="nx">sqlite3</span> <span class="s">&quot;</span><span class="si">#{</span><span class="nx">userPath</span><span class="si">}</span><span class="s">/messages.db&quot;</span></pre></div>             </td>           </tr>                               <tr id="section-8">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-8">&#182;</a>               </div>               <p>Check for the right number of arguments</p>             </td>             <td class="code">               <div class="highlight"><pre><span class="k">if</span> <span class="nx">process</span><span class="p">.</span><span class="nx">argv</span><span class="p">.</span><span class="nx">length</span> <span class="o">&lt;</span> <span class="mi">3</span>
+  <span class="nx">console</span><span class="p">.</span><span class="nx">error</span> <span class="s">&quot;Not enough arguments.&quot;</span>
+  <span class="nx">printUsage</span><span class="p">()</span>
+  <span class="nx">process</span><span class="p">.</span><span class="nx">exit</span> <span class="mi">1</span></pre></div>             </td>           </tr>                               <tr id="section-9">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-9">&#182;</a>               </div>               <p>Check to make sure the program is installed</p>             </td>             <td class="code">               <div class="highlight"><pre><span class="k">unless</span> <span class="nx">fs</span><span class="p">.</span><span class="nx">existsSync</span> <span class="s">&#39;data&#39;</span>
+  <span class="nx">console</span><span class="p">.</span><span class="nx">error</span> <span class="s">&#39;Program not installed. Please run ./install.js&#39;</span>
+  <span class="nx">process</span><span class="p">.</span><span class="nx">exit</span> <span class="mi">2</span></pre></div>             </td>           </tr>                               <tr id="section-10">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-10">&#182;</a>               </div>               <p>Check the command and run its functions</p>             </td>             <td class="code">               <div class="highlight"><pre><span class="k">switch</span> <span class="nx">process</span><span class="p">.</span><span class="nx">argv</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+  <span class="k">when</span> <span class="s">&quot;adduser&quot;</span> <span class="k">then</span> <span class="nx">addUser</span><span class="p">()</span>
+  <span class="k">when</span> <span class="s">&quot;removeuser&quot;</span> <span class="k">then</span> <span class="nx">removeUser</span><span class="p">()</span>
+  <span class="k">when</span> <span class="s">&quot;help&quot;</span> <span class="k">then</span> <span class="nx">printUsage</span><span class="p">()</span>
+  <span class="k">else</span>
+    <span class="nx">printUsage</span><span class="p">()</span>
+    <span class="nx">process</span><span class="p">.</span><span class="nx">exit</span> <span class="mi">1</span>
+
+</pre></div>             </td>           </tr>                </tbody>     </table>   </div> </body> </html> 

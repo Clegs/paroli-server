@@ -1,0 +1,104 @@
+<!DOCTYPE html>  <html> <head>   <title>users.coffee</title>   <meta http-equiv="content-type" content="text/html; charset=UTF-8">   <link rel="stylesheet" media="all" href="docco.css" /> </head> <body>   <div id="container">     <div id="background"></div>            <div id="jump_to">         Jump To &hellip;         <div id="jump_wrapper">           <div id="jump_page">                                           <a class="source" href="admin.html">                 admin.coffee               </a>                                           <a class="source" href="configloader.html">                 configloader.coffee               </a>                                           <a class="source" href="connection.html">                 connection.coffee               </a>                                           <a class="source" href="encryption.html">                 encryption.coffee               </a>                                           <a class="source" href="install.html">                 install.coffee               </a>                                           <a class="source" href="server.html">                 server.coffee               </a>                                           <a class="source" href="start.html">                 start.coffee               </a>                                           <a class="source" href="users.html">                 users.coffee               </a>                        </div>         </div>       </div>          <table cellpadding="0" cellspacing="0">       <thead>         <tr>           <th class="docs">             <h1>               users.coffee             </h1>           </th>           <th class="code">           </th>         </tr>       </thead>       <tbody>                               <tr id="section-1">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-1">&#182;</a>               </div>               <p>users.coffee - Manages the users on the server</p>             </td>             <td class="code">               <div class="highlight"><pre><span class="nv">async = </span><span class="nx">require</span> <span class="s">&#39;async&#39;</span>
+<span class="nv">sqlite3 = </span><span class="nx">require</span> <span class="s">&#39;sqlite3&#39;</span>
+<span class="nv">fs = </span><span class="nx">require</span> <span class="s">&#39;fs&#39;</span>
+
+<span class="nv">users = </span><span class="p">{}</span>
+
+<span class="nv">getUserPath = </span><span class="nf">(user) -&gt;</span>
+  <span class="s">&quot;data/users/</span><span class="si">#{</span><span class="nx">user</span><span class="si">}</span><span class="s">&quot;</span>
+
+<span class="nv">recursiveDelete = </span><span class="nf">(dir) -&gt;</span>
+  <span class="nv">files = </span><span class="nx">fs</span><span class="p">.</span><span class="nx">readdirSync</span> <span class="nx">dir</span>
+
+  <span class="k">for</span> <span class="nx">file</span> <span class="k">in</span> <span class="nx">files</span>
+    <span class="nv">stat = </span><span class="nx">fs</span><span class="p">.</span><span class="nx">statSync</span> <span class="s">&quot;</span><span class="si">#{</span><span class="nx">dir</span><span class="si">}</span><span class="s">/</span><span class="si">#{</span><span class="nx">file</span><span class="si">}</span><span class="s">&quot;</span>
+    <span class="k">if</span> <span class="nx">stat</span><span class="p">.</span><span class="nx">isFile</span><span class="p">()</span> <span class="k">then</span> <span class="nx">fs</span><span class="p">.</span><span class="nx">unlinkSync</span> <span class="s">&quot;</span><span class="si">#{</span><span class="nx">dir</span><span class="si">}</span><span class="s">/</span><span class="si">#{</span><span class="nx">file</span><span class="si">}</span><span class="s">&quot;</span>
+    <span class="k">else</span> <span class="k">if</span> <span class="nx">stat</span><span class="p">.</span><span class="nx">isDirectory</span><span class="p">()</span> <span class="k">then</span> <span class="nx">recursiveDelete</span> <span class="s">&quot;</span><span class="si">#{</span><span class="nx">dir</span><span class="si">}</span><span class="s">/</span><span class="si">#{</span><span class="nx">file</span><span class="si">}</span><span class="s">&quot;</span>
+
+  <span class="nx">fs</span><span class="p">.</span><span class="nx">rmdirSync</span> <span class="nx">dir</span></pre></div>             </td>           </tr>                               <tr id="section-2">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-2">&#182;</a>               </div>               <p>Checks to see if the user already exists.
+name - The username of the user.
+doneCallback(exists) - Called when method is done.</p>             </td>             <td class="code">               <div class="highlight"><pre><span class="nv">users.exists = </span><span class="nf">(name, doneCallback) -&gt;</span>
+  <span class="nv">userPath = </span><span class="nx">getUserPath</span> <span class="nx">name</span>
+
+  <span class="nx">fs</span><span class="p">.</span><span class="nx">exists</span> <span class="nx">userPath</span><span class="p">,</span> <span class="nf">(exists) -&gt;</span>
+    <span class="nx">doneCallback</span><span class="o">?</span> <span class="nx">exists</span></pre></div>             </td>           </tr>                               <tr id="section-3">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-3">&#182;</a>               </div>               <p>Creates a new user on the server with the username 'name',
+password hash 'passwordHash', and 'key'.
+name - Username to create.
+passwordHash - sha512 has of the password encoded in base64.
+key - Encrypted binary key.
+privateKey - Encrypted using origional password and encoded in base64.
+publicKey - Plain text public key in PEM format.
+When done calls callback(err)</p>             </td>             <td class="code">               <div class="highlight"><pre><span class="nv">users.create = </span><span class="nf">(name, passwordHash, key, privateKey, publicKey, doneCallback) -&gt;</span>
+  <span class="nv">userPath = </span><span class="nx">getUserPath</span> <span class="nx">name</span>
+
+  <span class="nx">async</span><span class="p">.</span><span class="nx">waterfall</span> <span class="p">[</span>
+    <span class="nf">(callback) -&gt;</span>
+      <span class="nx">users</span><span class="p">.</span><span class="nx">exists</span> <span class="nx">name</span><span class="p">,</span> <span class="nf">(exists) -&gt;</span>
+        <span class="k">if</span> <span class="nx">exists</span>
+          <span class="nx">callback</span> <span class="s">&quot;Error: User already exists.&quot;</span>
+        <span class="k">else</span>
+          <span class="nx">callback</span> <span class="kc">null</span>
+    <span class="nf">(callback) -&gt;</span></pre></div>             </td>           </tr>                               <tr id="section-4">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-4">&#182;</a>               </div>               <p>User doesn't exist, so create it.</p>             </td>             <td class="code">               <div class="highlight"><pre>      <span class="nx">fs</span><span class="p">.</span><span class="nx">mkdir</span> <span class="nx">userPath</span><span class="p">,</span> <span class="s">&quot;0777&quot;</span><span class="p">,</span> <span class="nf">-&gt;</span>
+        <span class="nx">fs</span><span class="p">.</span><span class="nx">mkdir</span> <span class="s">&quot;</span><span class="si">#{</span><span class="nx">userPath</span><span class="si">}</span><span class="s">/files&quot;</span><span class="p">,</span> <span class="s">&quot;0777&quot;</span><span class="p">,</span> <span class="nf">-&gt;</span>
+          <span class="nx">callback</span> <span class="kc">null</span>
+    <span class="nf">(callback) -&gt;</span>
+      <span class="nx">fs</span><span class="p">.</span><span class="nx">writeFile</span> <span class="s">&quot;</span><span class="si">#{</span><span class="nx">userPath</span><span class="si">}</span><span class="s">/password&quot;</span><span class="p">,</span> <span class="nx">passwordHash</span><span class="p">,</span> <span class="s">&#39;utf8&#39;</span><span class="p">,</span> <span class="nf">(err) -&gt;</span>
+        <span class="nx">callback</span> <span class="kc">null</span>
+    <span class="nf">(callback) -&gt;</span>
+      <span class="nv">messageDB = </span><span class="k">new</span> <span class="nx">sqlite3</span><span class="p">.</span><span class="nx">Database</span> <span class="s">&quot;</span><span class="si">#{</span><span class="nx">userPath</span><span class="si">}</span><span class="s">/messages.db&quot;</span>
+      <span class="nx">messageDB</span><span class="p">.</span><span class="nx">serialize</span> <span class="nf">-&gt;</span>
+        <span class="nx">messageDB</span><span class="p">.</span><span class="nx">run</span> <span class="s">&quot;&quot;&quot;</span>
+<span class="s">          CREATE TABLE received (</span>
+<span class="s">              id INTEGER PRIMARY KEY,</span>
+<span class="s">              `from` TEXT</span>
+<span class="s">              sent REAL,</span>
+<span class="s">              received REAL,</span>
+<span class="s">              read INTEGER,</span>
+<span class="s">              message BLOB,</span>
+<span class="s">              attachments BLOB);</span>
+<span class="s">          &quot;&quot;&quot;</span>
+        <span class="nx">messageDB</span><span class="p">.</span><span class="nx">run</span> <span class="s">&quot;&quot;&quot;</span>
+<span class="s">          CREATE TABLE sent (</span>
+<span class="s">              id INTEGER PRIMARY KEY,</span>
+<span class="s">              `to` TEXT,</span>
+<span class="s">              sent REAL,</span>
+<span class="s">              received REAL,</span>
+<span class="s">              read INTEGER,</span>
+<span class="s">              message BLOB,</span>
+<span class="s">              attachments BLOB);</span>
+<span class="s">          &quot;&quot;&quot;</span></pre></div>             </td>           </tr>                               <tr id="section-5">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-5">&#182;</a>               </div>               <h1>#</h1>             </td>             <td class="code">               <div class="highlight"><pre>          <span class="nx">name</span> <span class="o">-</span> <span class="nx">The</span> <span class="nx">name</span> <span class="k">of</span> <span class="nx">the</span> <span class="nx">group</span> <span class="nx">the</span> <span class="nx">user</span> <span class="o">is</span> <span class="nx">a</span> <span class="nx">member</span> <span class="k">of</span><span class="p">.</span>
+          <span class="nx">role</span> <span class="o">-</span> <span class="nx">The</span> <span class="nx">users</span> <span class="nx">position</span> <span class="nx">inside</span> <span class="nx">the</span> <span class="nx">group</span><span class="p">.</span></pre></div>             </td>           </tr>                               <tr id="section-6">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-6">&#182;</a>               </div>               <h1>#</h1>             </td>             <td class="code">               <div class="highlight"><pre>        <span class="nx">messageDB</span><span class="p">.</span><span class="nx">run</span> <span class="s">&quot;&quot;&quot;</span>
+<span class="s">          CREATE TABLE groups (</span>
+<span class="s">            name TEXT,</span>
+<span class="s">            role TEXT);</span>
+<span class="s">          &quot;&quot;&quot;</span>
+      <span class="nx">messageDB</span><span class="p">.</span><span class="nx">close</span><span class="p">()</span>
+
+      <span class="nx">fs</span><span class="p">.</span><span class="nx">writeFile</span> <span class="s">&quot;</span><span class="si">#{</span><span class="nx">userPath</span><span class="si">}</span><span class="s">/key&quot;</span><span class="p">,</span> <span class="nx">key</span><span class="p">,</span> <span class="s">&#39;utf8&#39;</span><span class="p">,</span> <span class="nf">(err) -&gt;</span>
+        <span class="nx">callback</span> <span class="kc">null</span>
+    <span class="nf">(callback) -&gt;</span>
+      <span class="nx">fs</span><span class="p">.</span><span class="nx">writeFile</span> <span class="s">&quot;</span><span class="si">#{</span><span class="nx">userPath</span><span class="si">}</span><span class="s">/privateKey.pem&quot;</span><span class="p">,</span> <span class="nx">privateKey</span><span class="p">,</span> <span class="s">&#39;utf8&#39;</span><span class="p">,</span> <span class="nf">(err) -&gt;</span>
+        <span class="nx">callback</span> <span class="kc">null</span>
+    <span class="nf">(callback) -&gt;</span>
+      <span class="nx">fs</span><span class="p">.</span><span class="nx">writeFile</span> <span class="s">&quot;</span><span class="si">#{</span><span class="nx">userPath</span><span class="si">}</span><span class="s">/publicKey.pem&quot;</span><span class="p">,</span> <span class="nx">publicKey</span><span class="p">,</span> <span class="s">&#39;utf8&#39;</span><span class="p">,</span> <span class="nf">(err) -&gt;</span>
+        <span class="nx">callback</span> <span class="kc">null</span>
+  <span class="p">],</span> <span class="nf">(err) -&gt;</span>
+    <span class="nx">doneCallback</span> <span class="nx">err</span></pre></div>             </td>           </tr>                               <tr id="section-7">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-7">&#182;</a>               </div>               <p>Removes a user if it exists.
+user - The username to delete.
+doneCallback(err) - Called when program is done.</p>             </td>             <td class="code">               <div class="highlight"><pre><span class="nv">users.remove = </span><span class="nf">(user, doneCallback) -&gt;</span>
+  <span class="nx">async</span><span class="p">.</span><span class="nx">waterfall</span> <span class="p">[</span>
+    <span class="nf">(callback) -&gt;</span>
+      <span class="nx">users</span><span class="p">.</span><span class="nx">exists</span> <span class="nx">user</span><span class="p">,</span> <span class="nf">(exists) -&gt;</span>
+        <span class="k">if</span> <span class="nx">exists</span>
+          <span class="nx">callback</span> <span class="kc">null</span>
+        <span class="k">else</span>
+          <span class="nx">callback</span> <span class="s">&quot;User does not exist&quot;</span>
+    <span class="nf">(callback) -&gt;</span>
+      <span class="nx">recursiveDelete</span> <span class="nx">getUserPath</span> <span class="nx">user</span>
+      <span class="nx">callback</span> <span class="kc">null</span>
+  <span class="p">],</span> <span class="nf">(err) -&gt;</span>
+    <span class="nx">doneCallback</span> <span class="nx">err</span>
+
+<span class="nv">module.exports = </span><span class="nx">users</span>
+
+</pre></div>             </td>           </tr>                </tbody>     </table>   </div> </body> </html> 

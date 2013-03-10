@@ -3,7 +3,7 @@
 COFFEE_FILES := $(wildcard *.coffee)
 COFFEE_JS := ${COFFEE_FILES:.coffee=.js}
 
-.PHONY: all clean distclean install uninstall start
+.PHONY: all clean distclean install uninstall start docs
 
 all: $(COFFEE_JS)
 	./utils/makeexe.sh install.js start.js admin.js
@@ -21,6 +21,9 @@ install: all
 
 uninstall:
 	@- rm -rf data
+
+docs:
+	docco $(COFFEE_FILES)
 
 start: all
 	./start.js

@@ -1,0 +1,27 @@
+<!DOCTYPE html>  <html> <head>   <title>encryption.coffee</title>   <meta http-equiv="content-type" content="text/html; charset=UTF-8">   <link rel="stylesheet" media="all" href="docco.css" /> </head> <body>   <div id="container">     <div id="background"></div>            <div id="jump_to">         Jump To &hellip;         <div id="jump_wrapper">           <div id="jump_page">                                           <a class="source" href="admin.html">                 admin.coffee               </a>                                           <a class="source" href="configloader.html">                 configloader.coffee               </a>                                           <a class="source" href="connection.html">                 connection.coffee               </a>                                           <a class="source" href="encryption.html">                 encryption.coffee               </a>                                           <a class="source" href="install.html">                 install.coffee               </a>                                           <a class="source" href="server.html">                 server.coffee               </a>                                           <a class="source" href="start.html">                 start.coffee               </a>                                           <a class="source" href="users.html">                 users.coffee               </a>                        </div>         </div>       </div>          <table cellpadding="0" cellspacing="0">       <thead>         <tr>           <th class="docs">             <h1>               encryption.coffee             </h1>           </th>           <th class="code">           </th>         </tr>       </thead>       <tbody>                               <tr id="section-1">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-1">&#182;</a>               </div>               <h1>#</h1>
+
+<p>encryption.coffee - In charge of encrypting and decrypting the data
+being sent to the user and being stored on the disk.</p>
+
+<h1>#</h1>             </td>             <td class="code">               <div class="highlight"><pre><span class="nv">crypto = </span><span class="nx">require</span> <span class="s">&#39;crypto&#39;</span>
+
+<span class="k">class</span> <span class="nx">Encryption</span>
+  <span class="nv">constructor: </span><span class="nf">(@key, @privateKey) -&gt;</span>
+    
+  <span class="nv">encode: </span><span class="nf">(data) =&gt;</span>
+    <span class="nv">cipher = </span><span class="nx">crypto</span><span class="p">.</span><span class="nx">createCipher</span> <span class="s">&#39;aes256&#39;</span><span class="p">,</span> <span class="nx">@key</span>
+    <span class="nx">cipher</span><span class="p">.</span><span class="nx">update</span><span class="p">(</span><span class="nx">data</span><span class="p">,</span> <span class="s">&#39;utf8&#39;</span><span class="p">,</span> <span class="s">&#39;base64&#39;</span><span class="p">)</span> <span class="o">+</span> <span class="nx">cipher</span><span class="p">.</span><span class="nx">final</span><span class="p">(</span><span class="s">&#39;base64&#39;</span><span class="p">)</span>
+  
+  <span class="nv">decode: </span><span class="nf">(data) =&gt;</span>
+    <span class="nv">decipher = </span><span class="nx">crypto</span><span class="p">.</span><span class="nx">createDecipher</span> <span class="s">&#39;aes256&#39;</span><span class="p">,</span> <span class="nx">@key</span>
+    <span class="s">&quot;</span><span class="si">#{</span><span class="nx">decipher</span><span class="p">.</span><span class="nx">update</span> <span class="nx">data</span><span class="p">,</span> <span class="s">&#39;base64&#39;</span><span class="si">}#{</span><span class="nx">decipher</span><span class="p">.</span><span class="nx">final</span><span class="p">()</span><span class="si">}</span><span class="s">&quot;</span>
+  
+  <span class="nv">encObj: </span><span class="nf">(obj) =&gt;</span>
+    <span class="nx">@encode</span> <span class="nx">JSON</span><span class="p">.</span><span class="nx">stringify</span> <span class="nx">obj</span>
+  
+  <span class="nv">decObj: </span><span class="nf">(data) =&gt;</span>
+    <span class="nx">JSON</span><span class="p">.</span><span class="nx">parse</span> <span class="nx">@decode</span> <span class="nx">data</span>
+
+<span class="nv">module.exports = </span><span class="nx">Encryption</span>
+
+</pre></div>             </td>           </tr>                </tbody>     </table>   </div> </body> </html> 
