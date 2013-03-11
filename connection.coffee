@@ -65,9 +65,10 @@ class Connection
 	# Called when the client sends data to the server.  
 	# `data` - The encrypted data that is sent to the server.
 	data: (data) =>
-		@processCommand @enc.decObj data
+		decodedData = @end.decObj data
+		@processCommand decodedData
 
-		@dataFunc?(data)
+		@dataFunc? decodedData
 	
 	# processCommand
 	# --------------
@@ -154,6 +155,11 @@ class Connection
 	# `con` - The connection that was just ended.
 	onEnd: (@endFunc) =>
 
+	# onData
+	# ------
+	# Set up an event listener to be called when data is sent from the client.  
+	# `@dataFunc(data)` - The function to be called when data is received.  
+	# `data` - The unencrypted object that represents the data.
 	onData: (@dataFunc) =>
 
 

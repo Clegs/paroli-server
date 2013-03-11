@@ -43,9 +43,10 @@ disconnect on the client.</p>             </td>             <td class="code">   
 
 <p>Called when the client sends data to the server. <br />
 <code>data</code> - The encrypted data that is sent to the server.</p>             </td>             <td class="code">               <div class="highlight"><pre>  <span class="nv">data: </span><span class="nf">(data) =&gt;</span>
-    <span class="nx">@processCommand</span> <span class="nx">@enc</span><span class="p">.</span><span class="nx">decObj</span> <span class="nx">data</span>
+    <span class="nv">decodedData = </span><span class="nx">@end</span><span class="p">.</span><span class="nx">decObj</span> <span class="nx">data</span>
+    <span class="nx">@processCommand</span> <span class="nx">decodedData</span>
 
-    <span class="nx">@dataFunc</span><span class="o">?</span><span class="p">(</span><span class="nx">data</span><span class="p">)</span>
+    <span class="nx">@dataFunc</span><span class="o">?</span> <span class="nx">decodedData</span>
   </pre></div>             </td>           </tr>                               <tr id="section-10">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-10">&#182;</a>               </div>               <h2>processCommand</h2>
 
 <p>Takes the unencrypted data from the client as an object and processes
@@ -112,8 +113,10 @@ Do not make listeners directly on the connection!</p>             </td>         
 
 <p>Set up an event listener to be called when the connection is terminated. <br />
 <code>@endFunc(con)</code> - The function to be called when the connection is lost.
-<code>con</code> - The connection that was just ended.</p>             </td>             <td class="code">               <div class="highlight"><pre>  <span class="nv">onEnd: </span><span class="nf">(@endFunc) =&gt;</span>
+<code>con</code> - The connection that was just ended.</p>             </td>             <td class="code">               <div class="highlight"><pre>  <span class="nv">onEnd: </span><span class="nf">(@endFunc) =&gt;</span></pre></div>             </td>           </tr>                               <tr id="section-18">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-18">&#182;</a>               </div>               <h2>onData</h2>
 
-  <span class="nv">onData: </span><span class="nf">(@dataFunc) =&gt;</span></pre></div>             </td>           </tr>                               <tr id="section-18">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-18">&#182;</a>               </div>               <p>Export the Connection class</p>             </td>             <td class="code">               <div class="highlight"><pre><span class="nv">module.exports = </span><span class="nx">Connection</span>
+<p>Set up an event listener to be called when data is sent from the client. <br />
+<code>@dataFunc(data)</code> - The function to be called when data is received. <br />
+<code>data</code> - The unencrypted object that represents the data.</p>             </td>             <td class="code">               <div class="highlight"><pre>  <span class="nv">onData: </span><span class="nf">(@dataFunc) =&gt;</span></pre></div>             </td>           </tr>                               <tr id="section-19">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-19">&#182;</a>               </div>               <p>Export the Connection class</p>             </td>             <td class="code">               <div class="highlight"><pre><span class="nv">module.exports = </span><span class="nx">Connection</span>
 
 </pre></div>             </td>           </tr>                </tbody>     </table>   </div> </body> </html> 

@@ -1,6 +1,4 @@
-###
-# start.coffee - Main program for running the Paroli Server
-###
+# Main program for running the Paroli Server
 
 fs = require 'fs'
 

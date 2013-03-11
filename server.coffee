@@ -1,17 +1,29 @@
-# server.coffee - Runs the server
+# Runs the server
 
 net = require 'net'
 ursa = require 'ursa'
 fs = require 'fs'
 Connection = require './connection'
 
+# Server
+# ======
+# Instantiates a server to listen for connections from the clients and to manage
+# who all is connected to it.
 class Server
+	# constructor
+	# -----------
+	# Creates an empty offline server.
 	constructor: ->
 		@connections = []
 		privateKeyPem = fs.readFileSync 'data/key', 'utf8'
 		@privateKey = ursa.createPrivateKey privateKeyPem, '', 'utf8'
 		
-	# Starts a new server from the given config file.
+	# start
+	# -----
+	# Starts the server.  
+	# `config` - The configuration object. Normally read using `configloader`.  
+	# `debug` - Optional. Set to true if debug messages should be sent to the
+	# console.
 	start: (@config, debug = false) =>
 		@server = net.createServer (c) =>
 			conn = new Connection c, @privateKey

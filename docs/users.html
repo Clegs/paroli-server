@@ -72,8 +72,8 @@ When done calls callback(err)</p>             </td>             <td class="code"
 <span class="s">              read INTEGER,</span>
 <span class="s">              message BLOB,</span>
 <span class="s">              attachments BLOB);</span>
-<span class="s">          &quot;&quot;&quot;</span></pre></div>             </td>           </tr>                               <tr id="section-7">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-7">&#182;</a>               </div>               <h1>#</h1>             </td>             <td class="code">               <div class="highlight"><pre>          <span class="nx">name</span> <span class="o">-</span> <span class="nx">The</span> <span class="nx">name</span> <span class="k">of</span> <span class="nx">the</span> <span class="nx">group</span> <span class="nx">the</span> <span class="nx">user</span> <span class="o">is</span> <span class="nx">a</span> <span class="nx">member</span> <span class="k">of</span><span class="p">.</span>
-          <span class="nx">role</span> <span class="o">-</span> <span class="nx">The</span> <span class="nx">users</span> <span class="nx">position</span> <span class="nx">inside</span> <span class="nx">the</span> <span class="nx">group</span><span class="p">.</span></pre></div>             </td>           </tr>                               <tr id="section-8">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-8">&#182;</a>               </div>               <h1>#</h1>             </td>             <td class="code">               <div class="highlight"><pre>        <span class="nx">messageDB</span><span class="p">.</span><span class="nx">run</span> <span class="s">&quot;&quot;&quot;</span>
+<span class="s">          &quot;&quot;&quot;</span></pre></div>             </td>           </tr>                               <tr id="section-7">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-7">&#182;</a>               </div>               <p><code>name</code> - The name of the group the user is a member of. <br />
+<code>role</code> - The users position inside the group.</p>             </td>             <td class="code">               <div class="highlight"><pre>        <span class="nx">messageDB</span><span class="p">.</span><span class="nx">run</span> <span class="s">&quot;&quot;&quot;</span>
 <span class="s">          CREATE TABLE groups (</span>
 <span class="s">            name TEXT,</span>
 <span class="s">            role TEXT);</span>
@@ -89,9 +89,12 @@ When done calls callback(err)</p>             </td>             <td class="code"
       <span class="nx">fs</span><span class="p">.</span><span class="nx">writeFile</span> <span class="s">&quot;</span><span class="si">#{</span><span class="nx">userPath</span><span class="si">}</span><span class="s">/publicKey.pem&quot;</span><span class="p">,</span> <span class="nx">publicKey</span><span class="p">,</span> <span class="s">&#39;utf8&#39;</span><span class="p">,</span> <span class="nf">(err) -&gt;</span>
         <span class="nx">callback</span> <span class="kc">null</span>
   <span class="p">],</span> <span class="nf">(err) -&gt;</span>
-    <span class="nx">doneCallback</span> <span class="nx">err</span></pre></div>             </td>           </tr>                               <tr id="section-9">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-9">&#182;</a>               </div>               <p>Removes a user if it exists.
-user - The username to delete.
-doneCallback(err) - Called when program is done.</p>             </td>             <td class="code">               <div class="highlight"><pre><span class="nv">users.remove = </span><span class="nf">(user, doneCallback) -&gt;</span>
+    <span class="nx">doneCallback</span> <span class="nx">err</span></pre></div>             </td>           </tr>                               <tr id="section-8">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-8">&#182;</a>               </div>               <h2>remove</h2>
+
+<p>Removes a user if it exists. <br />
+<code>user</code> - The username to delete. <br />
+<code>doneCallback(err)</code> - Called when program is done.
+<code>err</code> - Any error message generated from the program. <code>null</code> if no error.</p>             </td>             <td class="code">               <div class="highlight"><pre><span class="nv">users.remove = </span><span class="nf">(user, doneCallback) -&gt;</span>
   <span class="nx">async</span><span class="p">.</span><span class="nx">waterfall</span> <span class="p">[</span>
     <span class="nf">(callback) -&gt;</span>
       <span class="nx">users</span><span class="p">.</span><span class="nx">exists</span> <span class="nx">user</span><span class="p">,</span> <span class="nf">(exists) -&gt;</span>

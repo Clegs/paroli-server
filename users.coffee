@@ -8,7 +8,6 @@ users = {}
 
 # getUserPath
 # -----------
-# 
 # `user` - The user to get the path of.  
 # Returns the directory that the user's data is stored in.
 getUserPath = (user) ->
@@ -16,7 +15,6 @@ getUserPath = (user) ->
 
 # recursiveDelete
 # ---------------
-# 
 # Deletes the directory `dir` and all of its subdirectories and files.  
 # `dir` - The directory to delete.
 recursiveDelete = (dir) ->
@@ -31,7 +29,6 @@ recursiveDelete = (dir) ->
 
 # exists
 # ------
-# 
 # Checks to see if the user already exists.  
 # `name` - The username of the user.  
 # `doneCallback(exists)` - Called when method is done.  
@@ -43,7 +40,6 @@ users.exists = (name, doneCallback) ->
 
 # create
 # ------
-# 
 # Creates a new user on the server with the username 'name',
 # password hash 'passwordHash', and 'key'.
 # name - Username to create.
@@ -93,10 +89,8 @@ users.create = (name, passwordHash, key, privateKey, publicKey, doneCallback) ->
 							message BLOB,
 							attachments BLOB);
 					"""
-				###
-					name - The name of the group the user is a member of.
-					role - The users position inside the group.
-				###
+				# `name` - The name of the group the user is a member of.  
+				# `role` - The users position inside the group.
 				messageDB.run """
 					CREATE TABLE groups (
 						name TEXT,
@@ -115,9 +109,12 @@ users.create = (name, passwordHash, key, privateKey, publicKey, doneCallback) ->
 	], (err) ->
 		doneCallback err
 
-# Removes a user if it exists.
-# user - The username to delete.
-# doneCallback(err) - Called when program is done.
+# remove
+# ------
+# Removes a user if it exists.  
+# `user` - The username to delete.  
+# `doneCallback(err)` - Called when program is done.
+# `err` - Any error message generated from the program. `null` if no error.
 users.remove = (user, doneCallback) ->
 	async.waterfall [
 		(callback) ->
