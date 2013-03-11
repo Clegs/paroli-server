@@ -1,12 +1,11 @@
-# configloader2.coffee - Reads the config file and returnes
-# the configuration as an object
+# Reads the config file and returnes the configuration as an object
+
+fs = require 'fs'
 
 # Default values. Don't edit these, instead configure the 'config' file.
 module.exports =
 	name: "Paroli Server"
 	port: 6743
-
-fs = require 'fs'
 
 data = fs.readFileSync 'config', 'utf8'
 lines = data.split '\n'
@@ -32,5 +31,5 @@ for line in lines
 	
 	module.exports[key] = value
 
-# Cloud9 Support
+# [Cloud9](http://c9.io) Support - Has not been tested.
 module.exports.port = process.env.PORT if process.env.PORT?

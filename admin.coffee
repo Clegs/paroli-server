@@ -8,8 +8,12 @@ sqlite3 = require 'sqlite3'
 ursa = require 'ursa'
 users = require './users'
 
+# getLine
+# -------
 # Get the next line from the console and call 'callback' with the line
-# as the argument.
+# as the argument.  
+# `callback(line)` - Callback with the text that was input after it has
+# been trimmed.
 getLine = (callback) ->
 	process.stdin.resume()
 	process.stdin.setEncoding 'utf8'
@@ -18,6 +22,9 @@ getLine = (callback) ->
 		line = line.trim()
 		callback(line)
 
+# printUsage
+# ----------
+# Prints the list of commands that can be sent to the admin interface.
 printUsage = ->
 	console.log """
 		Usage: admin.js command [parameters]
@@ -30,6 +37,13 @@ printUsage = ->
 		"""
 
 # Command Functions
+# =================
+
+# addUser
+# -------
+# Called when the user runs the admin command. Looks for the username as
+# the next argument on the command line.  
+# Usage: `admin.js adduser name`
 addUser = ->
 	passwordHash = null
 
@@ -38,19 +52,20 @@ addUser = ->
 		printUsage()
 		process.exit 1
 	
+	# Note: Users should always be case insensitive.
 	userName = process.argv[3].toLowerCase().trim()
-	userPath = "data/users/#{userName}"
-
-	# Check if the user already exists
-	if fs.existsSync userPath
-		console.error "User already exists."
-		process.exit 2
 	
 	async.waterfall [
 		(callback) ->
-			process.stdout.write "Password: "
-			callback null
+			# Check if the user already exists
+			users.exists userName, (exists) ->
+				if exists
+					console.error "User already exists."
+					process.exit 2
+				else
+					callback null
 		(callback) ->
+			process.stdout.write "Password: "
 			getLine (password) ->
 				callback null, password
 		(password, callback) ->
@@ -76,16 +91,29 @@ addUser = ->
 					callback err
 	]
 
+# removeUser
+# ----------
+# Removes a user and deletes all their data from the system.  
+# Usage: `admin.js removeuser name`
 removeUser = ->
+	# Make sure a username was supplied.
 	if process.argv.length < 4
 		console.error "Need to specify a username."
 		printUsage()
 		process.exit 1
 	
 	userName = process.argv[3]
-	
-	users.remove userName, (err) ->
 
+	users.remove userName, (err) ->
+		if err
+			console.error """
+				The user could not be removed. Is it possible the user
+				does not exist?"""
+
+# addGroup
+# --------
+# Adds a user to the the specified group.  
+# Usage: `admin.js addgroup user group role`
 addGroup = ->
 	if process.argv.length < 6
 		console.error "Need to specify a username, group name, and role."
@@ -100,6 +128,8 @@ addGroup = ->
 
 	messageDB = new sqlite3 "#{userPath}/messages.db"
 
+# Script
+# ======
 
 # Check for the right number of arguments
 if process.argv.length < 3

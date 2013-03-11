@@ -5,9 +5,19 @@ async = require 'async'
 crypto = require 'crypto'
 Encryption = require './encryption'
 
+# Connection
+# ----------
+# Contains data about a given connection. Should be instanciated once for every
+# open connection to the server.  
+# The `Connection` class automatically maintains state and uses the `Encryption`
+# class to automatically encrypt and decrypt data.
 class Connection
+	# constructor
+	# -----------
+	# Setups the `Connection` class with with the current connection and key.  
+	# `@c` - The connection object given by the server.  
+	# `@privateKey` - An instantiated private key from `ursa.createPrivateKey`
 	constructor: (@c, @privateKey) ->
-		# Setup a new connection
 		console.log "Connection Started"
 
 		# Perform handshake
@@ -40,31 +50,50 @@ class Connection
 				callback null
 		]
 	
-	# Called when the client disconnects from the server.
-	# Optional: Pass terminate = true for the server to disconnect on the client.
+	# end
+	# ---
+	# Called when the client disconnects from the server.  
+	# `terminate` - Optional: Pass `terminate = true` for the server to
+	# disconnect on the client.
 	end: (terminate = false) =>
-		# End the connection
 		@c.end()
 		console.log "Connection Disconnected"
 		@endFunc?(@c)
 
+	# data
+	# ----
+	# Called when the client sends data to the server.  
+	# `data` - The encrypted data that is sent to the server.
 	data: (data) =>
 		@processCommand @enc.decObj data
 
 		@dataFunc?(data)
 	
-	processCommand: (cmd, callback) =>
+	# processCommand
+	# --------------
+	# Takes the unencrypted data from the client as an object and processes
+	# it.  
+	# `cmd` - The data as an object from the client.
+	# `commandCallback(err)` - Called when the program is done running.
+	# `err` - The error message. `null` if no error occured.
+	processCommand: (cmd, commandCallback) =>
 		unless cmd.command?
-			callback {message: "No command given."}
+			commandCallback {message: "No command given."}
 			return
 
 		response = {}
 
 		# Functions called to process commands.
-		# -------------------------------------
+		# =====================================
 		# Each function should add the output to be given to the client in the
 		# 'response' variable. When the function has completed it should call
 		# 'callback()' to send 'response' to the client.
+
+		# cmdLogin
+		# --------
+		# Called when the user is trying to log in to the server.  
+		# `callback()` - Called when the login command has been successfully
+		# processed.
 		cmdLogin = (callback) =>
 			# Check to make sure the right parameters are there.
 			if cmd.user? and cmd.password?
@@ -81,6 +110,11 @@ class Connection
 
 					callback()
 
+		# cmdLogout
+		# ---------
+		# Called when the user is trying to log out of the server.  
+		# `callback()` - Called wehn the logout command has been successfully
+		# processed.
 		cmdLogout = (callback) =>
 			if @loggedin
 				response.success = true
@@ -106,10 +140,18 @@ class Connection
 			(callback) =>
 				@c.write @enc.encObj response
 				callback null
-		]
+		], commandCallback
 	
-	# Events Associated With A Connection  
-	# Call this function when the connection is terminated.
+	# Event Listeners
+	# ===============
+	# The following functions setup even listeners.  
+	# Do not make listeners directly on the connection!
+
+	# onEnd
+	# -----
+	# Set up an event listener to be called when the connection is terminated.  
+	# `@endFunc(con)` - The function to be called when the connection is lost.
+	# `con` - The connection that was just ended.
 	onEnd: (@endFunc) =>
 
 	onData: (@dataFunc) =>

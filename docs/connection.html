@@ -1,50 +1,71 @@
 <!DOCTYPE html>  <html> <head>   <title>connection.coffee</title>   <meta http-equiv="content-type" content="text/html; charset=UTF-8">   <link rel="stylesheet" media="all" href="docco.css" /> </head> <body>   <div id="container">     <div id="background"></div>          <table cellpadding="0" cellspacing="0">       <thead>         <tr>           <th class="docs">             <h1>               connection.coffee             </h1>           </th>           <th class="code">           </th>         </tr>       </thead>       <tbody>                               <tr id="section-1">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-1">&#182;</a>               </div>               <p>Manages the communication between the client and server.</p>             </td>             <td class="code">               <div class="highlight"><pre><span class="nv">fs = </span><span class="nx">require</span> <span class="s">&#39;fs&#39;</span>
 <span class="nv">async = </span><span class="nx">require</span> <span class="s">&#39;async&#39;</span>
 <span class="nv">crypto = </span><span class="nx">require</span> <span class="s">&#39;crypto&#39;</span>
-<span class="nv">Encryption = </span><span class="nx">require</span> <span class="s">&#39;./encryption&#39;</span>
+<span class="nv">Encryption = </span><span class="nx">require</span> <span class="s">&#39;./encryption&#39;</span></pre></div>             </td>           </tr>                               <tr id="section-2">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-2">&#182;</a>               </div>               <h2>Connection</h2>
 
-<span class="k">class</span> <span class="nx">Connection</span>
-  <span class="nv">constructor: </span><span class="nf">(@c, @privateKey) -&gt;</span></pre></div>             </td>           </tr>                               <tr id="section-2">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-2">&#182;</a>               </div>               <p>Setup a new connection</p>             </td>             <td class="code">               <div class="highlight"><pre>    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span> <span class="s">&quot;Connection Started&quot;</span></pre></div>             </td>           </tr>                               <tr id="section-3">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-3">&#182;</a>               </div>               <p>Perform handshake</p>             </td>             <td class="code">               <div class="highlight"><pre>    <span class="nx">async</span><span class="p">.</span><span class="nx">waterfall</span> <span class="p">[</span>
+<p>Contains data about a given connection. Should be instanciated once for every
+open connection to the server. <br />
+The <code>Connection</code> class automatically maintains state and uses the <code>Encryption</code>
+class to automatically encrypt and decrypt data.</p>             </td>             <td class="code">               <div class="highlight"><pre><span class="k">class</span> <span class="nx">Connection</span></pre></div>             </td>           </tr>                               <tr id="section-3">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-3">&#182;</a>               </div>               <h2>constructor</h2>
+
+<p>Setups the <code>Connection</code> class with with the current connection and key. <br />
+<code>@c</code> - The connection object given by the server. <br />
+<code>@privateKey</code> - An instantiated private key from <code>ursa.createPrivateKey</code></p>             </td>             <td class="code">               <div class="highlight"><pre>  <span class="nv">constructor: </span><span class="nf">(@c, @privateKey) -&gt;</span>
+    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span> <span class="s">&quot;Connection Started&quot;</span></pre></div>             </td>           </tr>                               <tr id="section-4">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-4">&#182;</a>               </div>               <p>Perform handshake</p>             </td>             <td class="code">               <div class="highlight"><pre>    <span class="nx">async</span><span class="p">.</span><span class="nx">waterfall</span> <span class="p">[</span>
       <span class="nf">(callback) =&gt;</span>
         <span class="nx">fs</span><span class="p">.</span><span class="nx">readFile</span> <span class="s">&#39;data/key.pub&#39;</span><span class="p">,</span> <span class="s">&#39;utf8&#39;</span><span class="p">,</span> <span class="nf">(err, data) =&gt;</span>
           <span class="k">if</span> <span class="nx">err</span>
             <span class="nx">@c</span><span class="p">.</span><span class="nx">write</span> <span class="s">&quot;Could not load pulbic key\r\n&quot;</span>
             <span class="nx">@c</span><span class="p">.</span><span class="nx">end</span><span class="p">()</span>
             <span class="nx">callback</span> <span class="nx">err</span>
-            <span class="k">return</span></pre></div>             </td>           </tr>                               <tr id="section-4">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-4">&#182;</a>               </div>               <p>Listen for the connection ending</p>             </td>             <td class="code">               <div class="highlight"><pre>          <span class="nx">@c</span><span class="p">.</span><span class="nx">on</span> <span class="s">&#39;end&#39;</span><span class="p">,</span> <span class="nx">@end</span>
+            <span class="k">return</span></pre></div>             </td>           </tr>                               <tr id="section-5">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-5">&#182;</a>               </div>               <p>Listen for the connection ending</p>             </td>             <td class="code">               <div class="highlight"><pre>          <span class="nx">@c</span><span class="p">.</span><span class="nx">on</span> <span class="s">&#39;end&#39;</span><span class="p">,</span> <span class="nx">@end</span>
           <span class="nx">callback</span> <span class="kc">null</span><span class="p">,</span> <span class="nx">data</span>
       <span class="nf">(publicKey, callback) =&gt;</span>
-        <span class="nx">@c</span><span class="p">.</span><span class="nx">once</span> <span class="s">&#39;data&#39;</span><span class="p">,</span> <span class="nf">(data) =&gt;</span></pre></div>             </td>           </tr>                               <tr id="section-5">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-5">&#182;</a>               </div>               <p>They have now sent the key</p>             </td>             <td class="code">               <div class="highlight"><pre>          <span class="nx">@c</span><span class="p">.</span><span class="nx">on</span> <span class="s">&#39;data&#39;</span><span class="p">,</span> <span class="nx">@data</span>
+        <span class="nx">@c</span><span class="p">.</span><span class="nx">once</span> <span class="s">&#39;data&#39;</span><span class="p">,</span> <span class="nf">(data) =&gt;</span></pre></div>             </td>           </tr>                               <tr id="section-6">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-6">&#182;</a>               </div>               <p>They have now sent the key</p>             </td>             <td class="code">               <div class="highlight"><pre>          <span class="nx">@c</span><span class="p">.</span><span class="nx">on</span> <span class="s">&#39;data&#39;</span><span class="p">,</span> <span class="nx">@data</span>
           <span class="vi">@key = </span><span class="nx">privateKey</span><span class="p">.</span><span class="nx">decrypt</span> <span class="nx">data</span>
           <span class="vi">@enc = </span><span class="k">new</span> <span class="nx">Encryption</span> <span class="nx">@key</span><span class="p">,</span> <span class="nx">@privateKey</span>
           <span class="nx">callback</span> <span class="kc">null</span>
 
         <span class="nx">@c</span><span class="p">.</span><span class="nx">write</span> <span class="nx">publicKey</span>
-      <span class="nf">(callback) =&gt;</span></pre></div>             </td>           </tr>                               <tr id="section-6">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-6">&#182;</a>               </div>               <p>Setup variables</p>             </td>             <td class="code">               <div class="highlight"><pre>        <span class="vi">@loggedin = </span><span class="kc">false</span>
+      <span class="nf">(callback) =&gt;</span></pre></div>             </td>           </tr>                               <tr id="section-7">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-7">&#182;</a>               </div>               <p>Setup variables</p>             </td>             <td class="code">               <div class="highlight"><pre>        <span class="vi">@loggedin = </span><span class="kc">false</span>
         <span class="vi">@user = </span><span class="s">&quot;[anonymous]&quot;</span>
 
         <span class="nx">callback</span> <span class="kc">null</span>
     <span class="p">]</span>
-  </pre></div>             </td>           </tr>                               <tr id="section-7">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-7">&#182;</a>               </div>               <p>Called when the client disconnects from the server.
-Optional: Pass terminate = true for the server to disconnect on the client.</p>             </td>             <td class="code">               <div class="highlight"><pre>  <span class="nv">end: </span><span class="nf">(terminate = false) =&gt;</span></pre></div>             </td>           </tr>                               <tr id="section-8">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-8">&#182;</a>               </div>               <p>End the connection</p>             </td>             <td class="code">               <div class="highlight"><pre>    <span class="nx">@c</span><span class="p">.</span><span class="nx">end</span><span class="p">()</span>
-    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span> <span class="s">&quot;Connection Disconnected&quot;</span>
-    <span class="nx">@endFunc</span><span class="o">?</span><span class="p">(</span><span class="nx">@c</span><span class="p">)</span>
+  </pre></div>             </td>           </tr>                               <tr id="section-8">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-8">&#182;</a>               </div>               <h2>end</h2>
 
-  <span class="nv">data: </span><span class="nf">(data) =&gt;</span>
+<p>Called when the client disconnects from the server. <br />
+<code>terminate</code> - Optional: Pass <code>terminate = true</code> for the server to
+disconnect on the client.</p>             </td>             <td class="code">               <div class="highlight"><pre>  <span class="nv">end: </span><span class="nf">(terminate = false) =&gt;</span>
+    <span class="nx">@c</span><span class="p">.</span><span class="nx">end</span><span class="p">()</span>
+    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span> <span class="s">&quot;Connection Disconnected&quot;</span>
+    <span class="nx">@endFunc</span><span class="o">?</span><span class="p">(</span><span class="nx">@c</span><span class="p">)</span></pre></div>             </td>           </tr>                               <tr id="section-9">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-9">&#182;</a>               </div>               <h2>data</h2>
+
+<p>Called when the client sends data to the server. <br />
+<code>data</code> - The encrypted data that is sent to the server.</p>             </td>             <td class="code">               <div class="highlight"><pre>  <span class="nv">data: </span><span class="nf">(data) =&gt;</span>
     <span class="nx">@processCommand</span> <span class="nx">@enc</span><span class="p">.</span><span class="nx">decObj</span> <span class="nx">data</span>
 
     <span class="nx">@dataFunc</span><span class="o">?</span><span class="p">(</span><span class="nx">data</span><span class="p">)</span>
-  
-  <span class="nv">processCommand: </span><span class="nf">(cmd, callback) =&gt;</span>
+  </pre></div>             </td>           </tr>                               <tr id="section-10">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-10">&#182;</a>               </div>               <h2>processCommand</h2>
+
+<p>Takes the unencrypted data from the client as an object and processes
+it. <br />
+<code>cmd</code> - The data as an object from the client.
+<code>commandCallback(err)</code> - Called when the program is done running.
+<code>err</code> - The error message. <code>null</code> if no error occured.</p>             </td>             <td class="code">               <div class="highlight"><pre>  <span class="nv">processCommand: </span><span class="nf">(cmd, commandCallback) =&gt;</span>
     <span class="k">unless</span> <span class="nx">cmd</span><span class="p">.</span><span class="nx">command</span><span class="o">?</span>
-      <span class="nx">callback</span> <span class="p">{</span><span class="nv">message: </span><span class="s">&quot;No command given.&quot;</span><span class="p">}</span>
+      <span class="nx">commandCallback</span> <span class="p">{</span><span class="nv">message: </span><span class="s">&quot;No command given.&quot;</span><span class="p">}</span>
       <span class="k">return</span>
 
-    <span class="nv">response = </span><span class="p">{}</span></pre></div>             </td>           </tr>                               <tr id="section-9">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-9">&#182;</a>               </div>               <h2>Functions called to process commands.</h2>
+    <span class="nv">response = </span><span class="p">{}</span></pre></div>             </td>           </tr>                               <tr id="section-11">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-11">&#182;</a>               </div>               <h1>Functions called to process commands.</h1>
 
 <p>Each function should add the output to be given to the client in the
 'response' variable. When the function has completed it should call
-'callback()' to send 'response' to the client.</p>             </td>             <td class="code">               <div class="highlight"><pre>    <span class="nv">cmdLogin = </span><span class="nf">(callback) =&gt;</span></pre></div>             </td>           </tr>                               <tr id="section-10">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-10">&#182;</a>               </div>               <p>Check to make sure the right parameters are there.</p>             </td>             <td class="code">               <div class="highlight"><pre>      <span class="k">if</span> <span class="nx">cmd</span><span class="p">.</span><span class="nx">user</span><span class="o">?</span> <span class="o">and</span> <span class="nx">cmd</span><span class="p">.</span><span class="nx">password</span><span class="o">?</span>
+'callback()' to send 'response' to the client.</p>             </td>             <td class="code">               <div class="highlight"><pre></pre></div>             </td>           </tr>                               <tr id="section-12">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-12">&#182;</a>               </div>               <h2>cmdLogin</h2>
+
+<p>Called when the user is trying to log in to the server. <br />
+<code>callback()</code> - Called when the login command has been successfully
+processed.</p>             </td>             <td class="code">               <div class="highlight"><pre>    <span class="nv">cmdLogin = </span><span class="nf">(callback) =&gt;</span></pre></div>             </td>           </tr>                               <tr id="section-13">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-13">&#182;</a>               </div>               <p>Check to make sure the right parameters are there.</p>             </td>             <td class="code">               <div class="highlight"><pre>      <span class="k">if</span> <span class="nx">cmd</span><span class="p">.</span><span class="nx">user</span><span class="o">?</span> <span class="o">and</span> <span class="nx">cmd</span><span class="p">.</span><span class="nx">password</span><span class="o">?</span>
         <span class="nx">fs</span><span class="p">.</span><span class="nx">readFile</span> <span class="s">&quot;data/users/</span><span class="si">#{</span><span class="nx">cmd</span><span class="p">.</span><span class="nx">user</span><span class="si">}</span><span class="s">/password&quot;</span><span class="p">,</span> <span class="nf">(err, data) =&gt;</span>
           <span class="k">if</span> <span class="nx">err</span> <span class="o">or</span> <span class="s">&quot;</span><span class="si">#{</span><span class="nx">cmd</span><span class="p">.</span><span class="nx">password</span><span class="si">}</span><span class="s">&quot;</span> <span class="o">isnt</span> <span class="s">&quot;</span><span class="si">#{</span><span class="nx">data</span><span class="si">}</span><span class="s">&quot;</span> <span class="o">or</span> <span class="nx">@loggedin</span>
             <span class="nv">response.success = </span><span class="kc">false</span>
@@ -56,13 +77,15 @@ Optional: Pass terminate = true for the server to disconnect on the client.</p> 
             <span class="vi">@user = </span><span class="nx">cmd</span><span class="p">.</span><span class="nx">user</span>
             <span class="vi">@loggedin = </span><span class="kc">true</span>
 
-          <span class="nx">callback</span><span class="p">()</span>
+          <span class="nx">callback</span><span class="p">()</span></pre></div>             </td>           </tr>                               <tr id="section-14">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-14">&#182;</a>               </div>               <h2>cmdLogout</h2>
 
-    <span class="nv">cmdLogout = </span><span class="nf">(callback) =&gt;</span>
+<p>Called when the user is trying to log out of the server. <br />
+<code>callback()</code> - Called wehn the logout command has been successfully
+processed.</p>             </td>             <td class="code">               <div class="highlight"><pre>    <span class="nv">cmdLogout = </span><span class="nf">(callback) =&gt;</span>
       <span class="k">if</span> <span class="nx">@loggedin</span>
         <span class="nv">response.success = </span><span class="kc">true</span>
         <span class="nv">response.message = </span><span class="s">&quot;Successfully logged out.&quot;</span>
-        <span class="nx">console</span><span class="p">.</span><span class="nx">log</span> <span class="s">&quot;User &#39;</span><span class="si">#{</span><span class="nx">@user</span><span class="si">}</span><span class="s">&#39; has logged out.&quot;</span></pre></div>             </td>           </tr>                               <tr id="section-11">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-11">&#182;</a>               </div>               <p>Clear variables</p>             </td>             <td class="code">               <div class="highlight"><pre>        <span class="vi">@user = </span><span class="s">&quot;[anonymous]&quot;</span>
+        <span class="nx">console</span><span class="p">.</span><span class="nx">log</span> <span class="s">&quot;User &#39;</span><span class="si">#{</span><span class="nx">@user</span><span class="si">}</span><span class="s">&#39; has logged out.&quot;</span></pre></div>             </td>           </tr>                               <tr id="section-15">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-15">&#182;</a>               </div>               <p>Clear variables</p>             </td>             <td class="code">               <div class="highlight"><pre>        <span class="vi">@user = </span><span class="s">&quot;[anonymous]&quot;</span>
         <span class="vi">@loggedin = </span><span class="kc">false</span>
       <span class="k">else</span>
         <span class="nv">response.success = </span><span class="kc">false</span>
@@ -81,10 +104,16 @@ Optional: Pass terminate = true for the server to disconnect on the client.</p> 
       <span class="nf">(callback) =&gt;</span>
         <span class="nx">@c</span><span class="p">.</span><span class="nx">write</span> <span class="nx">@enc</span><span class="p">.</span><span class="nx">encObj</span> <span class="nx">response</span>
         <span class="nx">callback</span> <span class="kc">null</span>
-    <span class="p">]</span>
-  </pre></div>             </td>           </tr>                               <tr id="section-12">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-12">&#182;</a>               </div>               <p>Events Associated With A Connection <br />
-Call this function when the connection is terminated.</p>             </td>             <td class="code">               <div class="highlight"><pre>  <span class="nv">onEnd: </span><span class="nf">(@endFunc) =&gt;</span>
+    <span class="p">],</span> <span class="nx">commandCallback</span>
+  </pre></div>             </td>           </tr>                               <tr id="section-16">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-16">&#182;</a>               </div>               <h1>Event Listeners</h1>
 
-  <span class="nv">onData: </span><span class="nf">(@dataFunc) =&gt;</span></pre></div>             </td>           </tr>                               <tr id="section-13">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-13">&#182;</a>               </div>               <p>Export the Connection class</p>             </td>             <td class="code">               <div class="highlight"><pre><span class="nv">module.exports = </span><span class="nx">Connection</span>
+<p>The following functions setup even listeners. <br />
+Do not make listeners directly on the connection!</p>             </td>             <td class="code">               <div class="highlight"><pre></pre></div>             </td>           </tr>                               <tr id="section-17">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-17">&#182;</a>               </div>               <h2>onEnd</h2>
+
+<p>Set up an event listener to be called when the connection is terminated. <br />
+<code>@endFunc(con)</code> - The function to be called when the connection is lost.
+<code>con</code> - The connection that was just ended.</p>             </td>             <td class="code">               <div class="highlight"><pre>  <span class="nv">onEnd: </span><span class="nf">(@endFunc) =&gt;</span>
+
+  <span class="nv">onData: </span><span class="nf">(@dataFunc) =&gt;</span></pre></div>             </td>           </tr>                               <tr id="section-18">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-18">&#182;</a>               </div>               <p>Export the Connection class</p>             </td>             <td class="code">               <div class="highlight"><pre><span class="nv">module.exports = </span><span class="nx">Connection</span>
 
 </pre></div>             </td>           </tr>                </tbody>     </table>   </div> </body> </html> 
