@@ -7,3 +7,6 @@ node_modules
 # Compiled CoffeeScript Files
 *.js
 
+# IDEA Project Files
+.idea
+*.iml
