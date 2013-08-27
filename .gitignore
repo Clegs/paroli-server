@@ -5,6 +5,7 @@ node_modules
 .*.swp
 
 # Compiled CoffeeScript Files
+build
 *.js
 
 # IDEA Project Files

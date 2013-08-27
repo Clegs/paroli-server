@@ -6,11 +6,12 @@
 header='#!/usr/bin/env node'
 
 for file in "$@"; do
-	firstLine=`head -1 $file`
+	completeFile="build/$file"
+	firstLine=`head -1 $completeFile`
 	
 	if [ "$firstLine" != "$header" ]; then
-		sed -i "1i#!/usr/bin/env node\n" $file
-		chmod +x $file
+		sed -i "1i#!/usr/bin/env node\n" $completeFile
+		chmod +x $completeFile
 	fi
 done
 
