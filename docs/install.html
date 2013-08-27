@@ -1,26 +1,99 @@
-<!DOCTYPE html>  <html> <head>   <title>install.coffee</title>   <meta http-equiv="content-type" content="text/html; charset=UTF-8">   <link rel="stylesheet" media="all" href="docco.css" /> </head> <body>   <div id="container">     <div id="background"></div>          <table cellpadding="0" cellspacing="0">       <thead>         <tr>           <th class="docs">             <h1>               install.coffee             </h1>           </th>           <th class="code">           </th>         </tr>       </thead>       <tbody>                               <tr id="section-1">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-1">&#182;</a>               </div>               <p>This program will setup the data directories for the server.
-Please remove the 'data' folder if it already exists.</p>             </td>             <td class="code">               <div class="highlight"><pre><span class="nv">fs = </span><span class="nx">require</span> <span class="s">&#39;fs&#39;</span>
+<!DOCTYPE html>
+<html>
+<head><title>install.coffee</title>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <link rel="stylesheet" media="all" href="docco.css"/>
+</head>
+<body>
+<div id="container">
+    <div id="background"></div>
+    <table cellpadding="0" cellspacing="0">
+        <thead>
+        <tr>
+            <th class="docs"><h1> install.coffee </h1></th>
+            <th class="code"></th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr id="section-1">
+            <td class="docs">
+                <div class="pilwrap"><a class="pilcrow" href="#section-1">&#182;</a></div>
+                <p>This program will setup the data directories for the server.
+                    Please remove the 'data' folder if it already exists.</p></td>
+            <td class="code">
+                <div class="highlight"><pre><span class="nv">fs = </span><span class="nx">require</span> <span
+                        class="s">&#39;fs&#39;</span>
 <span class="nv">crypto = </span><span class="nx">require</span> <span class="s">&#39;crypto&#39;</span>
-<span class="nv">ursa = </span><span class="nx">require</span> <span class="s">&#39;ursa&#39;</span></pre></div>             </td>           </tr>                               <tr id="section-2">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-2">&#182;</a>               </div>               <p>Check to make sure there is no data directory.
-If it exists than exit immediatly.</p>             </td>             <td class="code">               <div class="highlight"><pre><span class="k">if</span> <span class="nx">fs</span><span class="p">.</span><span class="nx">existsSync</span> <span class="s">&#39;data&#39;</span>
+<span class="nv">ursa = </span><span class="nx">require</span> <span class="s">&#39;ursa&#39;</span></pre>
+                </div>
+            </td>
+        </tr>
+        <tr id="section-2">
+            <td class="docs">
+                <div class="pilwrap"><a class="pilcrow" href="#section-2">&#182;</a></div>
+                <p>Check to make sure there is no data directory.
+                    If it exists than exit immediatly.</p></td>
+            <td class="code">
+                <div class="highlight"><pre><span class="k">if</span> <span class="nx">fs</span><span class="p">.</span><span
+                        class="nx">existsSync</span> <span class="s">&#39;data&#39;</span>
   <span class="nx">console</span><span class="p">.</span><span class="nx">log</span> <span class="s">&#39;The \&#39;data\&#39; directory already exists.&#39;</span>
-  <span class="nx">process</span><span class="p">.</span><span class="nx">exit</span> <span class="mi">1</span></pre></div>             </td>           </tr>                               <tr id="section-3">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-3">&#182;</a>               </div>               <p>Create the following directories in the order listed.</p>             </td>             <td class="code">               <div class="highlight"><pre><span class="nv">directories = </span><span class="p">[</span>
+  <span class="nx">process</span><span class="p">.</span><span class="nx">exit</span> <span class="mi">1</span></pre>
+                </div>
+            </td>
+        </tr>
+        <tr id="section-3">
+            <td class="docs">
+                <div class="pilwrap"><a class="pilcrow" href="#section-3">&#182;</a></div>
+                <p>Create the following directories in the order listed.</p></td>
+            <td class="code">
+                <div class="highlight"><pre><span class="nv">directories = </span><span class="p">[</span>
         <span class="s">&#39;data&#39;</span>
         <span class="s">&#39;data/users&#39;</span>
         <span class="s">&#39;data/groups&#39;</span>
       <span class="p">]</span>
 
 <span class="k">for</span> <span class="nx">dir</span> <span class="k">in</span> <span class="nx">directories</span>
-  <span class="nx">console</span><span class="p">.</span><span class="nx">log</span> <span class="s">&quot;Creating: </span><span class="si">#{</span><span class="nx">dir</span><span class="si">}</span><span class="s">&quot;</span>
+  <span class="nx">console</span><span class="p">.</span><span class="nx">log</span> <span
+                            class="s">&quot;Creating: </span><span class="si">#{</span><span class="nx">dir</span><span
+                            class="si">}</span><span class="s">&quot;</span>
   <span class="nx">fs</span><span class="p">.</span><span class="nx">mkdirSync</span> <span class="nx">dir</span>
 
 <span class="nx">console</span><span class="p">.</span><span class="nx">log</span> <span class="s">&quot;Generating Keys&quot;</span>
-<span class="nv">key = </span><span class="nx">ursa</span><span class="p">.</span><span class="nx">generatePrivateKey</span> <span class="mi">4096</span><span class="p">,</span> <span class="mi">65537</span>
-<span class="nv">privateKey = </span><span class="nx">key</span><span class="p">.</span><span class="nx">toPrivatePem</span><span class="p">()</span>
-<span class="nv">publicKey = </span><span class="nx">key</span><span class="p">.</span><span class="nx">toPublicPem</span><span class="p">()</span>
-<span class="nx">console</span><span class="p">.</span><span class="nx">log</span> <span class="s">&quot;Keys generated&quot;</span></pre></div>             </td>           </tr>                               <tr id="section-4">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-4">&#182;</a>               </div>               <p>Write the keys to files</p>             </td>             <td class="code">               <div class="highlight"><pre><span class="nx">fs</span><span class="p">.</span><span class="nx">writeFile</span> <span class="s">&quot;data/key&quot;</span><span class="p">,</span> <span class="nx">privateKey</span><span class="p">,</span> <span class="nf">(err) -&gt;</span>
-  <span class="nx">console</span><span class="p">.</span><span class="nx">error</span> <span class="s">&quot;File could not be written. </span><span class="si">#{</span><span class="nx">err</span><span class="si">}</span><span class="s">&quot;</span> <span class="k">if</span> <span class="nx">err</span>
-<span class="nx">fs</span><span class="p">.</span><span class="nx">writeFile</span> <span class="s">&quot;data/key.pub&quot;</span><span class="p">,</span> <span class="nx">publicKey</span><span class="p">,</span> <span class="nf">(err) -&gt;</span>
-  <span class="nx">console</span><span class="p">.</span><span class="nx">error</span> <span class="s">&quot;File could not be written. </span><span class="si">#{</span><span class="nx">err</span><span class="si">}</span><span class="s">&quot;</span> <span class="k">if</span> <span class="nx">err</span>
+<span class="nv">key = </span><span class="nx">ursa</span><span class="p">.</span><span
+                            class="nx">generatePrivateKey</span> <span class="mi">4096</span><span
+                            class="p">,</span> <span class="mi">65537</span>
+<span class="nv">privateKey = </span><span class="nx">key</span><span class="p">.</span><span
+                            class="nx">toPrivatePem</span><span class="p">()</span>
+<span class="nv">publicKey = </span><span class="nx">key</span><span class="p">.</span><span
+                            class="nx">toPublicPem</span><span class="p">()</span>
+<span class="nx">console</span><span class="p">.</span><span class="nx">log</span> <span class="s">&quot;Keys generated&quot;</span></pre>
+                </div>
+            </td>
+        </tr>
+        <tr id="section-4">
+            <td class="docs">
+                <div class="pilwrap"><a class="pilcrow" href="#section-4">&#182;</a></div>
+                <p>Write the keys to files</p></td>
+            <td class="code">
+                <div class="highlight"><pre><span class="nx">fs</span><span class="p">.</span><span
+                        class="nx">writeFile</span> <span class="s">&quot;data/key&quot;</span><span class="p">,</span> <span
+                        class="nx">privateKey</span><span class="p">,</span> <span class="nf">(err) -&gt;</span>
+  <span class="nx">console</span><span class="p">.</span><span class="nx">error</span> <span class="s">&quot;File could not be written. </span><span
+                            class="si">#{</span><span class="nx">err</span><span class="si">}</span><span class="s">&quot;</span> <span
+                            class="k">if</span> <span class="nx">err</span>
+<span class="nx">fs</span><span class="p">.</span><span class="nx">writeFile</span> <span class="s">&quot;data/key.pub&quot;</span><span
+                            class="p">,</span> <span class="nx">publicKey</span><span class="p">,</span> <span
+                            class="nf">(err) -&gt;</span>
+  <span class="nx">console</span><span class="p">.</span><span class="nx">error</span> <span class="s">&quot;File could not be written. </span><span
+                            class="si">#{</span><span class="nx">err</span><span class="si">}</span><span class="s">&quot;</span> <span
+                            class="k">if</span> <span class="nx">err</span>
 
-</pre></div>             </td>           </tr>                </tbody>     </table>   </div> </body> </html> 
+</pre>
+                </div>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+</body>
+</html>

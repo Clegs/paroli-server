@@ -8,19 +8,19 @@ ursa = require 'ursa'
 # Check to make sure there is no data directory.
 # If it exists than exit immediatly.
 if fs.existsSync 'data'
-	console.log 'The \'data\' directory already exists.'
-	process.exit 1
+    console.log 'The \'data\' directory already exists.'
+    process.exit 1
 
 # Create the following directories in the order listed.
 directories = [
-				'data'
-				'data/users'
-				'data/groups'
-			]
+    'data'
+    'data/users'
+    'data/groups'
+]
 
 for dir in directories
-	console.log "Creating: #{dir}"
-	fs.mkdirSync dir
+    console.log "Creating: #{dir}"
+    fs.mkdirSync dir
 
 console.log "Generating Keys"
 key = ursa.generatePrivateKey 4096, 65537
@@ -30,6 +30,6 @@ console.log "Keys generated"
 
 # Write the keys to files
 fs.writeFile "data/key", privateKey, (err) ->
-	console.error "File could not be written. #{err}" if err
+    console.error "File could not be written. #{err}" if err
 fs.writeFile "data/key.pub", publicKey, (err) ->
-	console.error "File could not be written. #{err}" if err
+    console.error "File could not be written. #{err}" if err

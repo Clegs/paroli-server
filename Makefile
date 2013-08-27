@@ -8,7 +8,9 @@ COFFEE_JS = $(patsubst src/%.coffee, build/%.js, $(COFFEE_FILES))
 .PHONY: all clean distclean install uninstall start docs
 
 all: $(COFFEE_JS)
-	./utils/makeexe.sh install.js start.js admin.js
+	@- ./utils/makeexe.sh install.js start.js admin.js
+	@- rm -f ./build/node_modules
+	@- ln -s ../node_modules ./build/node_modules
 
 build/%.js: src/%.coffee
 	coffee -o build -c $<
